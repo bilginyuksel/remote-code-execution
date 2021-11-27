@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/yudai/pp"
 )
 
 func main() {
@@ -25,8 +26,13 @@ func main() {
 	io.Copy(os.Stdout, reader)
 
 	res, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: "ubuntu",
-		Cmd:   []string{"echo", "hello world"},
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
+		Tty:          true,
+		Cmd:          []string{"bash"},
+		Image:        "ubuntu",
+		Volumes:      map[string]struct{}{},
 	}, nil, nil, nil, "")
 	if err != nil {
 		panic(err)
@@ -36,19 +42,44 @@ func main() {
 		panic(err)
 	}
 
-	statusChannel, errChannel := cli.ContainerWait(ctx, res.ID, container.WaitConditionNotRunning)
-	select {
-	case err := <-errChannel:
-		if err != nil {
-			panic(err)
-		}
-	case <-statusChannel:
-	}
+	// statusChannel, errChannel := cli.ContainerWait(ctx, res.ID, container.WaitConditionNotRunning)
+	// select {
+	// case err := <-errChannel:
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// case <-statusChannel:
+	// 	fmt.Println("container status, ", statusChannel)
+	// }
 
 	out, err := cli.ContainerLogs(ctx, res.ID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		panic(err)
 	}
 
+	execResponse, err := cli.ContainerExecCreate(ctx, res.ID, types.ExecConfig{
+		Cmd: []string{"echo", "'hello world'"},
+	})
+	if err != nil {
+		panic(err)
+	}
+	execAttach, err := cli.ContainerExecAttach(ctx, execResponse.ID, types.ExecStartCheck{
+		Detach: true,
+		Tty:    true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	stdcopy.StdCopy(os.Stdout, os.Stderr, execAttach.Reader)
+
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+
+	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, container := range containers {
+		pp.Println(container)
+	}
 }
