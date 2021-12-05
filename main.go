@@ -82,4 +82,11 @@ func main() {
 	for _, container := range containers {
 		pp.Println(container)
 	}
+
+	// manager := NewManager(cli, "docker.io/library/ubuntu")
+	// container, err := manager.Create(context.Background())
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// log.Println(container)
 }
