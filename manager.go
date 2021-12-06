@@ -23,6 +23,8 @@ type ContainerPort interface {
 	ImageList(ctx context.Context, options types.ImageListOptions) ([]types.ImageSummary, error)
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *v1.Platform, containerName string) (container.ContainerCreateCreatedBody, error)
 	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
+	ContainerExecCreate(ctx context.Context, id string, options types.ExecConfig) (types.IDResponse, error)
+	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
 }
 
 type ContainerManager struct {
@@ -39,16 +41,19 @@ func NewManager(containerPort ContainerPort, image string) *ContainerManager {
 
 func (c *ContainerManager) Create(ctx context.Context) (*Container, error) {
 	if !c.isImageExists(ctx, c.defaultImage) {
+		log.Println("image does not exists")
 		if err := c.createImage(ctx, c.defaultImage); err != nil {
+			log.Printf("pull image: %v", err)
 			return nil, err
 		}
 	}
+	log.Println("given image ready..")
 	containerID, err := c.createContainer(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.startContainer(ctx, containerID); err != nil {
+	if err := c.containerPort.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
 		return nil, err
 	}
 
@@ -58,15 +63,39 @@ func (c *ContainerManager) Create(ctx context.Context) (*Container, error) {
 	}, nil
 }
 
+func (c *ContainerManager) Exec(ctx context.Context, id string, cmd []string) ([]byte, error) {
+	createExecResponse, err := c.containerPort.ContainerExecCreate(ctx, id, types.ExecConfig{Cmd: cmd})
+	if err != nil {
+		log.Printf("container exec create: %v, cmd: %v\n", err, cmd)
+		return nil, err
+	}
+	log.Println("container exec created")
+
+	attachExecRes, err := c.containerPort.ContainerExecAttach(ctx, createExecResponse.ID, types.ExecStartCheck{
+		Tty: true,
+	})
+	if err != nil {
+		log.Printf("container exec attach: %v\n", err)
+		return nil, err
+	}
+	log.Println("container exec attached")
+
+	return io.ReadAll(attachExecRes.Reader)
+}
+
 func (c *ContainerManager) isImageExists(ctx context.Context, image string) bool {
 	imageSummary, err := c.containerPort.ImageList(ctx, types.ImageListOptions{})
 	if err != nil {
+		log.Printf("image list: %v\n", err)
 		return false
 	}
 
 	for idx := range imageSummary {
-		if _, ok := imageSummary[idx].Labels[image]; ok {
-			return true
+		repoTags := imageSummary[idx].RepoTags
+		for _, tag := range repoTags {
+			if tag == image {
+				return true
+			}
 		}
 	}
 
@@ -102,10 +131,6 @@ func (c *ContainerManager) createContainer(ctx context.Context) (string, error) 
 		return "", err
 	}
 
-	log.Println(container.Warnings)
+	log.Printf("warnings: %v\n", container.Warnings)
 	return container.ID, nil
-}
-
-func (c *ContainerManager) startContainer(ctx context.Context, id string) error {
-	return c.containerPort.ContainerStart(ctx, id, types.ContainerStartOptions{})
 }
