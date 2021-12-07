@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"log"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/pkg/stdcopy"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
@@ -16,6 +19,12 @@ type Container struct {
 	ID        string
 	Name      string
 	CreatedAt time.Time
+}
+
+type ContainerStdout []byte
+
+func (c ContainerStdout) Unmarshal(value interface{}) error {
+	return json.Unmarshal(c, value)
 }
 
 type ContainerPort interface {
@@ -63,24 +72,30 @@ func (c *ContainerManager) Create(ctx context.Context) (*Container, error) {
 	}, nil
 }
 
-func (c *ContainerManager) Exec(ctx context.Context, id string, cmd []string) ([]byte, error) {
-	createExecResponse, err := c.containerPort.ContainerExecCreate(ctx, id, types.ExecConfig{Cmd: cmd})
+func (c *ContainerManager) Exec(ctx context.Context, id string, cmd []string) (ContainerStdout, error) {
+	createExecResponse, err := c.containerPort.ContainerExecCreate(ctx, id, types.ExecConfig{
+		Cmd:          cmd,
+		AttachStderr: true,
+		AttachStdout: true,
+	})
 	if err != nil {
 		log.Printf("container exec create: %v, cmd: %v\n", err, cmd)
 		return nil, err
 	}
 	log.Println("container exec created")
 
-	attachExecRes, err := c.containerPort.ContainerExecAttach(ctx, createExecResponse.ID, types.ExecStartCheck{
-		Tty: true,
-	})
+	attachExecRes, err := c.containerPort.ContainerExecAttach(ctx, createExecResponse.ID, types.ExecStartCheck{})
 	if err != nil {
 		log.Printf("container exec attach: %v\n", err)
 		return nil, err
 	}
 	log.Println("container exec attached")
+	var outBuffer, errBuffer bytes.Buffer
+	if _, err := stdcopy.StdCopy(&outBuffer, &errBuffer, attachExecRes.Conn); err != nil {
+		return nil, err
+	}
 
-	return io.ReadAll(attachExecRes.Reader)
+	return outBuffer.Bytes(), nil
 }
 
 func (c *ContainerManager) isImageExists(ctx context.Context, image string) bool {
