@@ -34,6 +34,7 @@ type ContainerPort interface {
 	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
 	ContainerExecCreate(ctx context.Context, id string, options types.ExecConfig) (types.IDResponse, error)
 	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
+	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 }
 
 type ContainerManager struct {
@@ -70,6 +71,20 @@ func (c *ContainerManager) Create(ctx context.Context) (*Container, error) {
 		ID:        containerID,
 		CreatedAt: time.Now(),
 	}, nil
+}
+
+func (c *ContainerManager) List(ctx context.Context) ([]string, error) {
+	containers, err := c.containerPort.ContainerList(ctx, types.ContainerListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	var containerIDs []string
+	for idx := range containers {
+		containerIDs = append(containerIDs, containers[idx].ID)
+	}
+
+	return containerIDs, nil
 }
 
 func (c *ContainerManager) Exec(ctx context.Context, id string, cmd []string) (ContainerStdout, error) {
