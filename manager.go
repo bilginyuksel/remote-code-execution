@@ -38,37 +38,34 @@ type ContainerPort interface {
 }
 
 type ContainerManager struct {
-	defaultImage  string
-	containerPort ContainerPort
+	containerConfig *container.Config
+	containerPort   ContainerPort
 }
 
-func NewManager(containerPort ContainerPort, image string) *ContainerManager {
+func NewContainerManager(containerPort ContainerPort, containerConfig *container.Config) *ContainerManager {
 	return &ContainerManager{
-		defaultImage:  image,
-		containerPort: containerPort,
+		containerPort:   containerPort,
+		containerConfig: containerConfig,
 	}
 }
 
 func (c *ContainerManager) Create(ctx context.Context) (*Container, error) {
-	if !c.isImageExists(ctx, c.defaultImage) {
-		log.Println("image does not exists")
-		if err := c.createImage(ctx, c.defaultImage); err != nil {
-			log.Printf("pull image: %v", err)
-			return nil, err
-		}
-	}
-	log.Println("given image ready..")
-	containerID, err := c.createContainer(ctx)
-	if err != nil {
+	if err := c.CreateImageIfNotExists(ctx, c.containerConfig.Image); err != nil {
 		return nil, err
 	}
 
-	if err := c.containerPort.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
+	container, err := c.containerPort.ContainerCreate(ctx, c.containerConfig, nil, nil, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("warnings: %v\n", container.Warnings)
+
+	if err := c.containerPort.ContainerStart(ctx, container.ID, types.ContainerStartOptions{}); err != nil {
 		return nil, err
 	}
 
 	return &Container{
-		ID:        containerID,
+		ID:        container.ID,
 		CreatedAt: time.Now(),
 	}, nil
 }
@@ -105,18 +102,26 @@ func (c *ContainerManager) Exec(ctx context.Context, id string, cmd []string) (C
 		return nil, err
 	}
 	log.Println("container exec attached")
-	var outBuffer, errBuffer bytes.Buffer
-	if _, err := stdcopy.StdCopy(&outBuffer, &errBuffer, attachExecRes.Conn); err != nil {
-		return nil, err
-	}
 
-	return outBuffer.Bytes(), nil
+	var outBuffer, errBuffer bytes.Buffer
+	_, err = stdcopy.StdCopy(&outBuffer, &errBuffer, attachExecRes.Conn)
+
+	return outBuffer.Bytes(), err
 }
 
-func (c *ContainerManager) isImageExists(ctx context.Context, image string) bool {
+func (c *ContainerManager) CreateImageIfNotExists(ctx context.Context, image string) error {
+	if c.IsImageExists(ctx, c.containerConfig.Image) {
+		log.Println("image already exists")
+		return nil
+	}
+
+	return c.CreateImage(ctx, image)
+}
+
+func (c *ContainerManager) IsImageExists(ctx context.Context, image string) bool {
 	imageSummary, err := c.containerPort.ImageList(ctx, types.ImageListOptions{})
 	if err != nil {
-		log.Printf("image list: %v\n", err)
+		log.Printf("image list failed: %v\n", err)
 		return false
 	}
 
@@ -132,35 +137,21 @@ func (c *ContainerManager) isImageExists(ctx context.Context, image string) bool
 	return false
 }
 
-func (c *ContainerManager) createImage(ctx context.Context, image string) error {
+func (c *ContainerManager) CreateImage(ctx context.Context, image string) error {
+	log.Println("pulling image")
 	reader, err := c.containerPort.ImagePull(ctx, image, types.ImagePullOptions{})
 	if err != nil {
+		log.Printf("failed while pulling the image, err: %v\n", err)
 		return err
 	}
 	defer reader.Close()
 
 	readerBytes, err := io.ReadAll(reader)
 	if err != nil {
+		log.Printf("failed when reading the bytes, err: %v\n", err)
 		return err
 	}
-	log.Println(string(readerBytes))
+	log.Printf("image pull response: %v\n", string(readerBytes))
 
 	return err
-}
-
-func (c *ContainerManager) createContainer(ctx context.Context) (string, error) {
-	container, err := c.containerPort.ContainerCreate(ctx, &container.Config{
-		AttachStdin:  true,
-		AttachStdout: true,
-		AttachStderr: true,
-		Tty:          true,
-		Cmd:          []string{"bash"},
-		Image:        "ubuntu",
-	}, nil, nil, nil, "")
-	if err != nil {
-		return "", err
-	}
-
-	log.Printf("warnings: %v\n", container.Warnings)
-	return container.ID, nil
 }
