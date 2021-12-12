@@ -3,10 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"log"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -14,18 +12,6 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
-
-type Container struct {
-	ID        string
-	Name      string
-	CreatedAt time.Time
-}
-
-type ContainerStdout []byte
-
-func (c ContainerStdout) Unmarshal(value interface{}) error {
-	return json.Unmarshal(c, value)
-}
 
 type ContainerPort interface {
 	ImagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error)
@@ -42,6 +28,7 @@ type ContainerManager struct {
 	containerPort   ContainerPort
 }
 
+// NewContainerManager create the conatiner manager with the given container configurations
 func NewContainerManager(containerPort ContainerPort, containerConfig *container.Config) *ContainerManager {
 	return &ContainerManager{
 		containerPort:   containerPort,
@@ -49,27 +36,26 @@ func NewContainerManager(containerPort ContainerPort, containerConfig *container
 	}
 }
 
-func (c *ContainerManager) Create(ctx context.Context) (*Container, error) {
+// Create creates a container then returns the container id
+func (c *ContainerManager) Create(ctx context.Context) (string, error) {
 	if err := c.CreateImageIfNotExists(ctx, c.containerConfig.Image); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	container, err := c.containerPort.ContainerCreate(ctx, c.containerConfig, nil, nil, nil, "")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	log.Printf("warnings: %v\n", container.Warnings)
 
 	if err := c.containerPort.ContainerStart(ctx, container.ID, types.ContainerStartOptions{}); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &Container{
-		ID:        container.ID,
-		CreatedAt: time.Now(),
-	}, nil
+	return container.ID, nil
 }
 
+// List list the containers
 func (c *ContainerManager) List(ctx context.Context) ([]string, error) {
 	containers, err := c.containerPort.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
@@ -84,8 +70,9 @@ func (c *ContainerManager) List(ctx context.Context) ([]string, error) {
 	return containerIDs, nil
 }
 
-func (c *ContainerManager) Exec(ctx context.Context, id string, cmd []string) (ContainerStdout, error) {
-	createExecResponse, err := c.containerPort.ContainerExecCreate(ctx, id, types.ExecConfig{
+// Exec executes the given command to the container with the given id
+func (c *ContainerManager) Exec(ctx context.Context, containerID string, cmd []string) ([]byte, error) {
+	createExecResponse, err := c.containerPort.ContainerExecCreate(ctx, containerID, types.ExecConfig{
 		Cmd:          cmd,
 		AttachStderr: true,
 		AttachStdout: true,
@@ -115,9 +102,11 @@ func (c *ContainerManager) CreateImageIfNotExists(ctx context.Context, image str
 		return nil
 	}
 
-	return c.CreateImage(ctx, image)
+	return c.PullImage(ctx, image)
 }
 
+// IsImageExists get the image list and compare the images with the given image
+// if the image is in the list return true otherwise return false
 func (c *ContainerManager) IsImageExists(ctx context.Context, image string) bool {
 	imageSummary, err := c.containerPort.ImageList(ctx, types.ImageListOptions{})
 	if err != nil {
@@ -137,7 +126,7 @@ func (c *ContainerManager) IsImageExists(ctx context.Context, image string) bool
 	return false
 }
 
-func (c *ContainerManager) CreateImage(ctx context.Context, image string) error {
+func (c *ContainerManager) PullImage(ctx context.Context, image string) error {
 	log.Println("pulling image")
 	reader, err := c.containerPort.ImagePull(ctx, image, types.ImagePullOptions{})
 	if err != nil {
