@@ -8,6 +8,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/pkg/stdcopy"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -42,7 +43,16 @@ func (c *ContainerManager) Create(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	container, err := c.containerPort.ContainerCreate(ctx, c.containerConfig, nil, nil, nil, "")
+	container, err := c.containerPort.ContainerCreate(ctx, c.containerConfig, &container.HostConfig{
+		Mounts: []mount.Mount{
+			{
+				Type:     mount.TypeBind,
+				Source:   "/Users/bilginyuksel/ps-workspace/remote-code-execution/example",
+				Target:   "/app",
+				ReadOnly: true,
+			},
+		},
+	}, nil, nil, "")
 	if err != nil {
 		return "", err
 	}
