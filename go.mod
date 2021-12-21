@@ -8,6 +8,12 @@ require (
 )
 
 require (
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+)
+
+require (
 	github.com/Microsoft/go-winio v0.4.17 // indirect
 	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
@@ -26,4 +32,7 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 )
 
-require github.com/morikuni/aec v1.0.0 // indirect
+require (
+	github.com/morikuni/aec v1.0.0 // indirect
+	github.com/urfave/cli/v2 v2.3.0
+)

@@ -1,4 +1,4 @@
-package main
+package balancer
 
 type CircularLinkedListNode struct {
 	value string

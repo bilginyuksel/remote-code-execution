@@ -2,7 +2,7 @@
 // Source: balancer.go
 
 // Package mock_main is a generated GoMock package.
-package main
+package balancer
 
 import (
 	context "context"
