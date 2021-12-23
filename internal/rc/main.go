@@ -1,4 +1,4 @@
-package rce
+package rc
 
 import (
 	"context"
@@ -30,37 +30,15 @@ func main() {
 	//	}
 	//	log.Println(res)
 
-	manager := NewContainerManager(cli, &container.Config{
+	manager := NewClient(cli, &container.Config{
 		AttachStdin:  true,
 		AttachStdout: true,
 		AttachStderr: true,
 		Tty:          true,
-		Cmd:          []string{"bin/sh"},
-		Image:        "custom-ubuntu:latest",
+		Cmd:          []string{"bash"},
+		Image:        "all-in-one-ubuntu:latest",
 	})
 
-	// //	containerID, err := manager.Create(ctx)
-	// //	if err != nil {
-	// //		panic(err)
-	// //	}
-	// //	log.Println(containerID)
-	// //
-	// //	startTime := time.Now()
-	// //	group := sync.WaitGroup{}
-	// //	group.Add(100)
-	// //	for i := 0; i < 100; i++ {
-	// //		go func() {
-	// //			res, err := manager.Exec(ctx, containerID, []string{"echo", `{"title": "MiTitle"}`})
-	// //			if err != nil {
-	// //				panic(err)
-	// //			}
-	// //			log.Println(string(res))
-	// //			group.Done()
-	// //		}()
-	// //	}
-	// //
-	// //	group.Wait()
-	// //	log.Printf("time elapsed: %v\n", time.Since(startTime))
 	service := &Service{manager}
 	info := CodeExecInfo{
 		Lang: "Golang",
