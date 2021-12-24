@@ -13,7 +13,9 @@ import (
 type ContainerPort interface {
 	ImagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error)
 	ImageList(ctx context.Context, options types.ImageListOptions) ([]types.ImageSummary, error)
-	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *v1.Platform, containerName string) (container.ContainerCreateCreatedBody, error)
+	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig,
+		networkingConfig *network.NetworkingConfig, platform *v1.Platform,
+		containerName string) (container.ContainerCreateCreatedBody, error)
 	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
 	ContainerExecCreate(ctx context.Context, id string, options types.ExecConfig) (types.IDResponse, error)
 	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
@@ -25,7 +27,7 @@ type Client struct {
 	containerPort   ContainerPort
 }
 
-// NewContainerManager create the conatiner manager with the given container configurations
+// NewContainerManager create the container manager with the given container configurations
 func NewClient(containerPort ContainerPort, containerConfig *container.Config) *Client {
 	return &Client{
 		containerPort:   containerPort,
