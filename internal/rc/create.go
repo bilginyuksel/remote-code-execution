@@ -10,11 +10,11 @@ import (
 
 // Create creates a container then returns the container id
 func (c *Client) Create(ctx context.Context, hostConfig *container.HostConfig) (string, error) {
-	container, err := c.containerPort.ContainerCreate(ctx, c.containerConfig, hostConfig, nil, nil, "")
+	ct, err := c.containerPort.ContainerCreate(ctx, c.containerConfig, hostConfig, nil, nil, "")
 	if err != nil {
 		return "", err
 	}
-	log.Printf("warnings: %v\n", container.Warnings)
+	log.Printf("warnings: %v\n", ct.Warnings)
 
-	return container.ID, c.containerPort.ContainerStart(ctx, container.ID, types.ContainerStartOptions{})
+	return ct.ID, c.containerPort.ContainerStart(ctx, ct.ID, types.ContainerStartOptions{})
 }

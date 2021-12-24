@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Client) CreateImageIfNotExists(ctx context.Context, image string) error {
-	if c.IsImageExists(ctx, c.containerConfig.Image) {
+	if c.IsImageExists(ctx, image) {
 		log.Println("image already exists")
 		return nil
 	}
