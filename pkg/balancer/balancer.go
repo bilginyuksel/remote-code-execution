@@ -22,12 +22,13 @@ type Balancer struct {
 	currContainerCount int
 }
 
-func (b *Balancer) Balance(ctx context.Context) (createdContainers []string, err error) {
+func (b *Balancer) Balance(ctx context.Context) ([]string, error) {
 	if b.currContainerCount > b.conf.MinContainerCount {
 		log.Printf("no need to rebalance there are already %d containers\n", b.currContainerCount)
 		return nil, nil
 	}
 
+	var createdContainers []string
 	for ; b.currContainerCount < b.conf.MinContainerCount; b.currContainerCount++ {
 		containerID, err := b.manager.Create(ctx)
 		if err != nil {
@@ -37,5 +38,5 @@ func (b *Balancer) Balance(ctx context.Context) (createdContainers []string, err
 		createdContainers = append(createdContainers, containerID)
 	}
 
-	return createdContainers, err
+	return createdContainers, nil
 }
