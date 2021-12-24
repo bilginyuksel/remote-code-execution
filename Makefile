@@ -1,6 +1,7 @@
 mockgen:
 	mockgen -destination=mocks/mock_container_port.go -package mocks github.com/codigician/remote-code-execution/internal/rc ContainerPort
 	mockgen -destination=mocks/mock_io_readcloser.go -package mocks io ReadCloser
+	mockgen -destination=mocks/mock_conn.go -package mocks net Conn
 
 test:
 	go test ./... -v
