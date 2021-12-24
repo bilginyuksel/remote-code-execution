@@ -11,7 +11,7 @@ func TestBalancer(t *testing.T) {
 	mock := NewMockBalancerContainerManager(gomock.NewController(t))
 
 	b := Balancer{
-		conf: BalancerConfiguration{
+		conf: Configuration{
 			MaxContainerCount: 5,
 			MinContainerCount: 3,
 		},

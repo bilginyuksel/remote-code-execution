@@ -5,20 +5,20 @@ import (
 	"log"
 )
 
-type BalancerConfiguration struct {
+type Configuration struct {
 	MaxContainerCount int
 	MinContainerCount int
 }
 
-type BalancerContainerManager interface {
+type ContainerManager interface {
 	Create(ctx context.Context) (string, error)
 	//	Status(ctx context.Context, containerID string) (ContainerStatus, error)
 	Remove(ctx context.Context)
 }
 
 type Balancer struct {
-	conf               BalancerConfiguration
-	manager            BalancerContainerManager
+	conf               Configuration
+	manager            ContainerManager
 	currContainerCount int
 }
 
