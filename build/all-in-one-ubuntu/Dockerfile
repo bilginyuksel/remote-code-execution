@@ -7,7 +7,8 @@ RUN apt-get update -y && \
 # install golang
 RUN wget https://dl.google.com/go/go1.17.5.linux-arm64.tar.gz && \
     tar -xvf go1.17.5.linux-arm64.tar.gz && \
-    mv go /usr/local
+    mv go /usr/local && \
+    rm -rf go1.17.5.linux-arm64.tar.gz
 
 # install python
 RUN apt-get install -y python3
