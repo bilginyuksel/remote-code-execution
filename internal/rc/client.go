@@ -20,6 +20,7 @@ type ContainerPort interface {
 	ContainerExecCreate(ctx context.Context, id string, options types.ExecConfig) (types.IDResponse, error)
 	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
 	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
+	ContainerRemove(ctx context.Context, id string, opt types.ContainerRemoveOptions) error
 }
 
 type Client struct {
