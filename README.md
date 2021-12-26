@@ -36,3 +36,11 @@ Test the compiler/interpreters.
 4. __Golang -->__ `/usr/local/go/bin/go version`
 5. __C++ -->__ `g++ --version`
 6. __C -->__ `gcc --version`
+
+## Execute multiple commands with docker exec
+
+The command below will work for ubuntu container. You need to change the `bash` command according to container you use. For example for alpine container it should be `/bin/sh`. 
+
+```bash
+$ docker exec -w <workdir> -it <container-id> bash -c "<command> && <command>"
+```
