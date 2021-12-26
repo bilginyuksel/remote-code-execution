@@ -20,7 +20,7 @@ func TestExec_CreateExecFailed_ReturnErr(t *testing.T) {
 		Return(types.IDResponse{}, errors.New("err"))
 
 	c := rc.NewClient(mockContainerPort, nil)
-	_, err := c.Exec(context.TODO(), "containerID", []string{})
+	_, err := c.Exec(context.TODO(), "containerID", "dir/", []string{})
 
 	assert.NotNil(t, err)
 }
@@ -35,7 +35,7 @@ func TestExec_AttachExecFailed_ReturnErr(t *testing.T) {
 		Return(types.HijackedResponse{}, errors.New("exec attaching err"))
 
 	c := rc.NewClient(mockContainerPort, nil)
-	_, err := c.Exec(context.TODO(), "containerID", []string{})
+	_, err := c.Exec(context.TODO(), "containerID", "/dir", []string{})
 
 	assert.NotNil(t, err)
 }
@@ -52,7 +52,7 @@ func TestExec_ExecCreatedAndAttached_ReturnOutBuffer(t *testing.T) {
 		Return(types.HijackedResponse{Conn: mockConn}, nil)
 
 	c := rc.NewClient(mockContainerPort, nil)
-	_, err := c.Exec(context.TODO(), "containerID", []string{})
+	_, err := c.Exec(context.TODO(), "containerID", "/dir", []string{})
 
 	assert.Nil(t, err)
 }

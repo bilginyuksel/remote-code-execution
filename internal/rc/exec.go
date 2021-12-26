@@ -10,11 +10,12 @@ import (
 )
 
 // Exec executes the given command to the container with the given id
-func (c *Client) Exec(ctx context.Context, containerID string, cmd []string) ([]byte, error) {
+func (c *Client) Exec(ctx context.Context, containerID, workingDir string, cmd []string) ([]byte, error) {
 	createExecResponse, err := c.containerPort.ContainerExecCreate(ctx, containerID, types.ExecConfig{
 		Cmd:          cmd,
 		AttachStderr: true,
 		AttachStdout: true,
+		WorkingDir:   workingDir,
 	})
 	if err != nil {
 		log.Printf("container exec create: %v, cmd: %v\n", err, cmd)
