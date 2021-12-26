@@ -48,11 +48,6 @@ func (c *Client) PullImage(ctx context.Context, image string) error {
 	defer reader.Close()
 
 	readerBytes, err := io.ReadAll(reader)
-	if err != nil {
-		log.Printf("failed when reading the bytes, err: %v\n", err)
-		return err
-	}
 	log.Printf("image pull response: %v\n", string(readerBytes))
-
 	return err
 }
