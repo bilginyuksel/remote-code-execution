@@ -51,18 +51,18 @@ func (mr *MockContainerClientMockRecorder) Create(arg0, arg1 interface{}) *gomoc
 }
 
 // Exec mocks base method.
-func (m *MockContainerClient) Exec(arg0 context.Context, arg1 string, arg2 []string) ([]byte, error) {
+func (m *MockContainerClient) Exec(arg0 context.Context, arg1, arg2 string, arg3 []string) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exec", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Exec", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Exec indicates an expected call of Exec.
-func (mr *MockContainerClientMockRecorder) Exec(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockContainerClientMockRecorder) Exec(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockContainerClient)(nil).Exec), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockContainerClient)(nil).Exec), arg0, arg1, arg2, arg3)
 }
 
 // ForceRemove mocks base method.
