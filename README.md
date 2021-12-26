@@ -44,3 +44,27 @@ The command below will work for ubuntu container. You need to change the `bash` 
 ```bash
 $ docker exec -w <workdir> -it <container-id> bash -c "<command> && <command>"
 ```
+
+## Quick Demo
+
+Clone the application, open the terminal and go to the application directory then run the commands below.
+
+```bash
+$ mkdir target
+$ echo 'import package
+import "fmt"
+func main() {
+    fmt.Println("Hello, world!")
+}' > demo.go
+$ go build -o rce .
+$ ./rce exec -p demo.go -l golang
+```
+
+To kill the container and remove after that.
+```bash
+function conkill {
+    docker kill $1
+    docker container rm $1
+}
+conkill <container-id>
+```
