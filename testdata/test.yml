@@ -1,0 +1,3 @@
+appname: "test-app"
+host: "localhost"
+port: 8000
