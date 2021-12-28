@@ -4,12 +4,12 @@
 
 Build the image.
 ```bash
-$ docker build . -t rce-engine
+$ docker build --progress=plain . -t rce
 ```
 
 Run the container with the image you have created before.
 ```bash
-$ docker run -it -v /var/run/docker.sock:/var/run/docker.sock rce-engine
+$ docker run -it -v /var/run/docker.sock:/var/run/docker.sock --mount type=bind,source=$(pwd)/target,target=/rce/target rce
 ```
 
 ## Build the all-in-one-ubuntu image
@@ -57,7 +57,7 @@ func main() {
     fmt.Println("Hello, world!")
 }' > demo.go
 $ go build -o rce .
-$ ./rce exec -p demo.go -l golang
+$ APP_ENV=local ./rce exec -p demo.go -l golang
 ```
 
 To kill the container and remove after that.

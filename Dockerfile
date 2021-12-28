@@ -1,6 +1,9 @@
 FROM golang:1.17
 
-WORKDIR /app
-COPY . /app
+RUN mkdir /app /target
 
-CMD ["go", "run", "."]
+WORKDIR /rce
+COPY . /rce
+ENV APP_ENV=dev
+
+CMD ["go", "run", ".", "exec", "-p", "examples/main.go", "-l", "golang"]
