@@ -7,8 +7,8 @@ import (
 
 	"github.com/codigician/remote-code-execution/internal/codexec"
 	"github.com/codigician/remote-code-execution/internal/rc"
+	"github.com/codigician/remote-code-execution/pkg/config"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/urfave/cli/v2"
 )
@@ -36,9 +36,14 @@ func CommandApplication() *cli.Command {
 }
 
 func runApp(c *cli.Context) error {
-	fmt.Println("running the application on port ...")
-	filepath := c.String("path")
-	lang := c.String("lang")
+	var (
+		containerConfig     container.Config
+		containerHostConfig container.HostConfig
+
+		env      = os.Getenv("APP_ENV")
+		filepath = c.String("path")
+		lang     = c.String("lang")
+	)
 
 	content, err := os.ReadFile(filepath)
 	if err != nil {
@@ -50,36 +55,13 @@ func runApp(c *cli.Context) error {
 		return err
 	}
 
-	containerPort := rc.NewClient(dockerClient, &container.Config{
-		AttachStdin:  true,
-		AttachStdout: true,
-		AttachStderr: true,
-		Tty:          true,
-		Cmd:          []string{"bash"},
-		Image:        "all-in-one-ubuntu:latest",
-	})
-
-	currDir, err := os.Getwd()
-	if err != nil {
-		return err
+	if err := config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig); err != nil {
+		panic(err)
 	}
 
-	service := codexec.New(containerPort, &container.HostConfig{
-		Mounts: []mount.Mount{{
-			Type:     mount.TypeBind,
-			Source:   fmt.Sprintf("%s/target", currDir),
-			Target:   "/app",
-			ReadOnly: false,
-		}},
-	}, codexec.WriteFile)
-	res, err := service.Exec(c.Context, codexec.ExecutionInfo{
-		Lang:    lang,
-		Content: string(content),
-	})
-	if err != nil {
-		return err
-	}
-
+	rcClient := rc.NewClient(dockerClient, &containerConfig)
+	service := codexec.New(rcClient, &containerHostConfig, codexec.WriteFile)
+	res, err := service.Exec(c.Context, codexec.ExecutionInfo{Lang: lang, Content: string(content)})
 	log.Println(string(res))
-	return nil
+	return err
 }

@@ -1,0 +1,14 @@
+# container config
+attachStdin: true
+attachStdout: true
+attachStderr: true
+tty: true
+cmd:
+  - "bash"
+image: "all-in-one-ubuntu:latest"
+
+# container host config
+mounts:
+  - type: "bind"
+    source: "/target"
+    target: "/app"
