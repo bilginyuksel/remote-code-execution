@@ -33,7 +33,6 @@ jobs:
         
     - name: Test
       run: go test -v ./...
-    needs: build
       
   lint:
     runs-on: ubuntu-latest
@@ -42,8 +41,7 @@ jobs:
     - name: Linter
       uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.29
-    needs: test
+        version: v1.43
       
   code-coverage:
     runs-on: ubuntu-latest
@@ -58,5 +56,4 @@ jobs:
     - name: Coverage
       run: go test -race -coverprofile=coverage.out -covermode=atomic ./... && \
          go tool cover -func=coverage.out | grep total | awk '{print $3}'
-    needs: lint
   

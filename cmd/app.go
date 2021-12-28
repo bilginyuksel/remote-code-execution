@@ -55,8 +55,9 @@ func runApp(c *cli.Context) error {
 		return err
 	}
 
-	if err := config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig); err != nil {
-		panic(err)
+	err = config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig)
+	if err != nil {
+		return err
 	}
 
 	rcClient := rc.NewClient(dockerClient, &containerConfig)
