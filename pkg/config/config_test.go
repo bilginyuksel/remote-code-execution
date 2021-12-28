@@ -29,3 +29,11 @@ func TestRead_GoodConfig_FillStruct(t *testing.T) {
 		Port:    8000,
 	}, actual)
 }
+
+func TestRead_InvalidConfigDataToFill_UnmarshalReturnErr(t *testing.T) {
+	var invalidConf int
+
+	err := config.Read("../../testdata/test.yml", &invalidConf)
+
+	assert.NotNil(t, err)
+}
