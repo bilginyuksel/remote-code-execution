@@ -31,7 +31,6 @@ func CommandServe() *cli.Command {
 }
 
 func startServer(c *cli.Context) error {
-
 	var (
 		containerConfig     container.Config
 		containerHostConfig container.HostConfig

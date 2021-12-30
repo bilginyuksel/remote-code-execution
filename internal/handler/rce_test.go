@@ -65,6 +65,7 @@ func TestRemoteCodeExecutor(t *testing.T) {
 				AnyTimes()
 
 			res, _ := http.DefaultClient.Do(req)
+			res.Body.Close()
 
 			assert.Equal(t, tc.expectedStatusCode, res.StatusCode)
 		})

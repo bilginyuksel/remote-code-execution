@@ -32,13 +32,13 @@ func (r *RemoteCodeExecutor) RegisterRoutes(e *echo.Echo) {
 	e.POST("/codexec", r.Exec)
 }
 
-func (h *RemoteCodeExecutor) Exec(ctx echo.Context) error {
+func (r *RemoteCodeExecutor) Exec(ctx echo.Context) error {
 	var request RemoteCodeExecuteRequest
 	if err := ctx.Bind(&request); err != nil {
 		return err
 	}
 
-	res, err := h.rce.Exec(ctx.Request().Context(), request.ToCodexecInfo())
+	res, err := r.rce.Exec(ctx.Request().Context(), request.ToCodexecInfo())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
