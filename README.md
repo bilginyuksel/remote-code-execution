@@ -39,7 +39,7 @@ Test the compiler/interpreters.
 
 ## Execute multiple commands with docker exec
 
-The command below will work for ubuntu container. You need to change the `bash` command according to container you use. For example for alpine container it should be `/bin/sh`. 
+The command below will work for ubuntu container. You need to change the `bash` command according to container you use. For example for alpine container it should be `/bin/sh`.
 
 ```bash
 $ docker exec -w <workdir> -it <container-id> bash -c "<command> && <command>"
