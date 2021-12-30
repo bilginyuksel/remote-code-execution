@@ -6,4 +6,4 @@ WORKDIR /rce
 COPY . /rce
 ENV APP_ENV=dev
 
-CMD ["go", "run", ".", "exec", "-p", "examples/main.go", "-l", "golang"]
+CMD ["go", "run", ".", "exec", "-p", "testdata/maingo", "-l", "golang"]
