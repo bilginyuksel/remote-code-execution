@@ -3,6 +3,7 @@ mockgen:
 	mockgen -destination=internal/mocks/mock_io_readcloser.go -package mocks io ReadCloser
 	mockgen -destination=internal/mocks/mock_conn.go -package mocks net Conn
 	mockgen -destination=internal/mocks/mock_container_client.go -package mocks github.com/codigician/remote-code-execution/internal/codexec ContainerClient
+	mockgen -destination=internal/mocks/mock_codexecutor.go -package mocks github.com/codigician/remote-code-execution/internal/handler RemoteCodeExecutorService
 
 test:
 	go test ./... -v

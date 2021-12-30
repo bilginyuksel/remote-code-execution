@@ -10,6 +10,7 @@ func Build() *cli.App {
 		Usage: "Remote code execution CLI menu",
 		Commands: []*cli.Command{
 			CommandApplication(),
+			CommandServe(),
 		},
 	}
 }
