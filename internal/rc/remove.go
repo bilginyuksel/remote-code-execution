@@ -15,4 +15,5 @@ func (c *Client) ForceRemove(ctx context.Context, id string) {
 	}); err != nil {
 		log.Printf("container remove: %v\n", err)
 	}
+	log.Println("container removed")
 }

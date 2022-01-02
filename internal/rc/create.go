@@ -14,7 +14,7 @@ func (c *Client) Create(ctx context.Context, hostConfig *container.HostConfig) (
 	if err != nil {
 		return "", err
 	}
-	log.Printf("warnings: %v\n", ct.Warnings)
+	log.Printf("container created, id: %s, warnings: %v\n", ct.ID, ct.Warnings)
 
 	return ct.ID, c.containerPort.ContainerStart(ctx, ct.ID, types.ContainerStartOptions{})
 }

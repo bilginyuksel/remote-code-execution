@@ -21,12 +21,14 @@ func (c *Client) Exec(ctx context.Context, containerID, workingDir string, cmd [
 		log.Printf("container exec create: %v, cmd: %v\n", err, cmd)
 		return nil, err
 	}
+	log.Printf("container exec created, id: %s\n", createExecResponse.ID)
 
 	attachExecRes, err := c.containerPort.ContainerExecAttach(ctx, createExecResponse.ID, types.ExecStartCheck{})
 	if err != nil {
 		log.Printf("container exec attach: %v\n", err)
 		return nil, err
 	}
+	log.Println("container exec attached")
 
 	var outBuffer, errBuffer bytes.Buffer
 	_, err = stdcopy.StdCopy(&outBuffer, &errBuffer, attachExecRes.Conn)
