@@ -10,5 +10,5 @@ image: "all-in-one-ubuntu:latest"
 # container host config
 mounts:
   - type: "bind"
-    source: "/target"
+    source: "/Users/bilginyuksel/ps-workspace/remote-code-execution/target"
     target: "/app"
