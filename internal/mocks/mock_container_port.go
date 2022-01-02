@@ -8,6 +8,7 @@ import (
 	context "context"
 	io "io"
 	reflect "reflect"
+	time "time"
 
 	types "github.com/docker/docker/api/types"
 	container "github.com/docker/docker/api/types/container"
@@ -125,6 +126,20 @@ func (m *MockContainerPort) ContainerStart(arg0 context.Context, arg1 string, ar
 func (mr *MockContainerPortMockRecorder) ContainerStart(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStart", reflect.TypeOf((*MockContainerPort)(nil).ContainerStart), arg0, arg1, arg2)
+}
+
+// ContainerStop mocks base method.
+func (m *MockContainerPort) ContainerStop(arg0 context.Context, arg1 string, arg2 *time.Duration) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ContainerStop", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ContainerStop indicates an expected call of ContainerStop.
+func (mr *MockContainerPortMockRecorder) ContainerStop(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStop", reflect.TypeOf((*MockContainerPort)(nil).ContainerStop), arg0, arg1, arg2)
 }
 
 // ImageList mocks base method.

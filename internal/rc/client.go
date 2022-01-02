@@ -3,6 +3,7 @@ package rc
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -21,6 +22,7 @@ type ContainerPort interface {
 	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
 	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 	ContainerRemove(ctx context.Context, id string, opt types.ContainerRemoveOptions) error
+	ContainerStop(ctx context.Context, containerID string, duration *time.Duration) error
 }
 
 type Client struct {
