@@ -1,5 +1,11 @@
 # Remote Code Execution
 
+Run the application codes for multiple languages using very simple APIs. 
+
+Remote code execution application creates a container then executes the code gives the response to client. Current architecture does not use __DIND(Docker in Docker)__. The containers share the same docker daemon.
+
+![Remote Code Execution Architecture](.docs/images/codexec.png)
+
 ## Getting Started
 
 Follow the getting started steps to run the application.
