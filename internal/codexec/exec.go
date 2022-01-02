@@ -16,7 +16,7 @@ func (c *Codexec) Exec(ctx context.Context, info ExecutionInfo) ([]byte, error) 
 	if err != nil {
 		return nil, err
 	}
-	defer c.containerClient.ForceRemove(ctx, containerID)
+	defer func() { go c.containerClient.ForceRemove(context.Background(), containerID) }()
 
 	sourceFilepath, err := c.write(MountSource, supportedLanguages[info.Lang].Filename(), info.Content)
 	if err != nil {

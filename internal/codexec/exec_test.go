@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/codigician/remote-code-execution/internal/codexec"
 	"github.com/codigician/remote-code-execution/internal/mocks"
@@ -31,6 +32,10 @@ func TestExec_ContainerCreateFailure_ReturnErr(t *testing.T) {
 }
 
 func TestExec_WriteFailure_ReturnErr(t *testing.T) {
+	// ForceRemove runs on goroutines, to wait for that function to execute
+	// you need to sleep for a couple of milliseconds
+	defer time.Sleep(10 * time.Millisecond)
+
 	mockContainerClient := newMockContainerClient(t)
 	mockContainerClient.EXPECT().Create(gomock.Any(), gomock.Any()).Return("", nil)
 	mockContainerClient.EXPECT().ForceRemove(gomock.Any(), gomock.Any())
@@ -44,6 +49,10 @@ func TestExec_WriteFailure_ReturnErr(t *testing.T) {
 }
 
 func TestExec(t *testing.T) {
+	// ForceRemove runs on goroutines, to wait for that function to execute
+	// you need to sleep for a couple of milliseconds
+	defer time.Sleep(10 * time.Millisecond)
+
 	containerID := "c1"
 	mockResponse := []byte("resp")
 	mockFilepath := fmt.Sprintf("%s/%s/Main.go", codexec.MountSource, "ransomid")

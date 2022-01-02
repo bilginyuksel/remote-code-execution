@@ -15,7 +15,6 @@ func TestForceRemove(t *testing.T) {
 	mockContainerPort.EXPECT().ContainerStop(gomock.Any(), "container-to-remove", nil).Return(nil)
 	mockContainerPort.EXPECT().ContainerRemove(gomock.Any(), "container-to-remove", types.ContainerRemoveOptions{
 		RemoveVolumes: true,
-		RemoveLinks:   true,
 		Force:         true,
 	}).Return(nil)
 
