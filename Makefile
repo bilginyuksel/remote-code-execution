@@ -14,3 +14,7 @@ code-coverage:
 
 lint:
 	golangci-lint run
+
+up:
+	chmod +x ./scripts/run_docker.sh
+	./scripts/run_docker.sh
