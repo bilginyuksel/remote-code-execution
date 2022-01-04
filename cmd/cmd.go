@@ -6,10 +6,10 @@ import (
 
 func Build() *cli.App {
 	return &cli.App{
-		Name:  "rce",
+		Name:  "Remote Code Execution",
 		Usage: "Remote code execution CLI menu",
 		Commands: []*cli.Command{
-			CommandApplication(),
+			CommandExec(),
 			CommandServe(),
 		},
 	}

@@ -13,10 +13,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func CommandApplication() *cli.Command {
+func CommandExec() *cli.Command {
 	return &cli.Command{
 		Name:  "exec",
-		Usage: "Run RCEE HTTP application",
+		Usage: "Execute a code file",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "language",
@@ -31,11 +31,11 @@ func CommandApplication() *cli.Command {
 				Required: true,
 			},
 		},
-		Action: runApp,
+		Action: runExec,
 	}
 }
 
-func runApp(c *cli.Context) error {
+func runExec(c *cli.Context) error {
 	var (
 		containerConfig     container.Config
 		containerHostConfig container.HostConfig
