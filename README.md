@@ -10,6 +10,8 @@ Remote code execution application creates a container then executes the code giv
 
 Follow the getting started steps to run the application.
 
+### **or just run `make up`**
+
 First change the mount source path in `dev.yml` and `local.yml` files.
 Source path should be pointing to the path of `/target` folder in your application. You can use the bash command below if you're inside the application directory with the terminal.
 
