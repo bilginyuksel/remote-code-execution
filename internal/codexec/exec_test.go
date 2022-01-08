@@ -57,7 +57,7 @@ func TestExec(t *testing.T) {
 	mockResponse := []byte("resp")
 	mockFilepath := fmt.Sprintf("%s/%s/Main.go", codexec.MountSource, "ransomid")
 	expectedFileDir := fmt.Sprintf("%s/%s/", codexec.MountTarget, "ransomid")
-	expectedCmd := []string{"/usr/local/go/bin/go", "run", "Main.go", "yuksel"}
+	expectedCmd := []string{"bash", "-c", "/usr/local/go/bin/go run Main.go yuksel"}
 
 	mockContainerClient := newMockContainerClient(t)
 	mockContainerClient.EXPECT().Create(gomock.Any(), gomock.Any()).Return(containerID, nil)
