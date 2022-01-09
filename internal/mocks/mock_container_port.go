@@ -128,6 +128,21 @@ func (mr *MockContainerPortMockRecorder) ContainerStart(arg0, arg1, arg2 interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStart", reflect.TypeOf((*MockContainerPort)(nil).ContainerStart), arg0, arg1, arg2)
 }
 
+// ContainerStatsOneShot mocks base method.
+func (m *MockContainerPort) ContainerStatsOneShot(arg0 context.Context, arg1 string) (types.ContainerStats, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ContainerStatsOneShot", arg0, arg1)
+	ret0, _ := ret[0].(types.ContainerStats)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ContainerStatsOneShot indicates an expected call of ContainerStatsOneShot.
+func (mr *MockContainerPortMockRecorder) ContainerStatsOneShot(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStatsOneShot", reflect.TypeOf((*MockContainerPort)(nil).ContainerStatsOneShot), arg0, arg1)
+}
+
 // ContainerStop mocks base method.
 func (m *MockContainerPort) ContainerStop(arg0 context.Context, arg1 string, arg2 *time.Duration) error {
 	m.ctrl.T.Helper()

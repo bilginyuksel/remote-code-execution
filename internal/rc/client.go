@@ -23,6 +23,7 @@ type ContainerPort interface {
 	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 	ContainerRemove(ctx context.Context, id string, opt types.ContainerRemoveOptions) error
 	ContainerStop(ctx context.Context, containerID string, duration *time.Duration) error
+	ContainerStatsOneShot(ctx context.Context, id string) (types.ContainerStats, error)
 }
 
 type Client struct {
