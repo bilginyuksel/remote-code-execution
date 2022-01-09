@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/codigician/remote-code-execution/internal/rc"
 	"github.com/docker/docker/api/types/container"
 	"github.com/google/uuid"
 )
@@ -17,7 +18,7 @@ const (
 type (
 	ContainerClient interface {
 		Create(ctx context.Context, hostConfig *container.HostConfig) (string, error)
-		Exec(ctx context.Context, id, workingDir string, cmd []string) ([]byte, error)
+		Exec(ctx context.Context, id, workingDir string, cmd []string) (*rc.ExecRes, error)
 		ForceRemove(ctx context.Context, id string)
 	}
 

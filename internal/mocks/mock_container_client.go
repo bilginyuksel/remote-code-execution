@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	rc "github.com/codigician/remote-code-execution/internal/rc"
 	container "github.com/docker/docker/api/types/container"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -51,10 +52,10 @@ func (mr *MockContainerClientMockRecorder) Create(arg0, arg1 interface{}) *gomoc
 }
 
 // Exec mocks base method.
-func (m *MockContainerClient) Exec(arg0 context.Context, arg1, arg2 string, arg3 []string) ([]byte, error) {
+func (m *MockContainerClient) Exec(arg0 context.Context, arg1, arg2 string, arg3 []string) (*rc.ExecRes, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Exec", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].([]byte)
+	ret0, _ := ret[0].(*rc.ExecRes)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

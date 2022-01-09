@@ -13,6 +13,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewExecRes_NilOutBuffer_UnsuccessfullAndErrBuffer(t *testing.T) {
+	res := rc.NewExecRes(nil, []byte("some error"))
+
+	assert.False(t, res.Success)
+	assert.Equal(t, []byte("some error"), res.Buffer)
+}
+
+func TestNewExecRes_HaveOutBuffer_SuccessfullAndOutBuffer(t *testing.T) {
+	res := rc.NewExecRes([]byte("some output"), nil)
+
+	assert.True(t, res.Success)
+	assert.Equal(t, []byte("some output"), res.Buffer)
+}
+
 func TestExec_CreateExecFailed_ReturnErr(t *testing.T) {
 	mockContainerPort := newMockContainerPort(t)
 	mockContainerPort.EXPECT().

@@ -9,6 +9,7 @@ import (
 
 	"github.com/codigician/remote-code-execution/internal/codexec"
 	"github.com/codigician/remote-code-execution/internal/mocks"
+	"github.com/codigician/remote-code-execution/internal/rc"
 	"github.com/docker/docker/api/types/container"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -54,7 +55,7 @@ func TestExec(t *testing.T) {
 	defer time.Sleep(10 * time.Millisecond)
 
 	containerID := "c1"
-	mockResponse := []byte("resp")
+	mockResponse := &rc.ExecRes{Buffer: []byte("resp"), Success: true}
 	mockFilepath := fmt.Sprintf("%s/%s/Main.go", codexec.MountSource, "ransomid")
 	expectedFileDir := fmt.Sprintf("%s/%s/", codexec.MountTarget, "ransomid")
 	expectedCmd := []string{"bash", "-c", "/usr/local/go/bin/go run Main.go yuksel"}
@@ -83,7 +84,7 @@ func main() {
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, mockResponse, res)
+	assert.Equal(t, mockResponse.Buffer, res)
 }
 
 func newMockContainerClient(t *testing.T) *mocks.MockContainerClient {

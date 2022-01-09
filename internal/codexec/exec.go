@@ -25,5 +25,6 @@ func (c *Codexec) Exec(ctx context.Context, info ExecutionInfo) ([]byte, error) 
 	targetFilepath := strings.ReplaceAll(sourceFilepath, MountSource, MountTarget)
 	targetFileDir := strings.ReplaceAll(targetFilepath, supportedLanguages[info.Lang].Filename(), "")
 	log.Printf("container: %s, path= %s, cmd= %s\n", containerID, targetFilepath, info.Command())
-	return c.containerClient.Exec(ctx, containerID, targetFileDir, info.Command())
+	res, err := c.containerClient.Exec(ctx, containerID, targetFileDir, info.Command())
+	return res.Buffer, err
 }
