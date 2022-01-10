@@ -19,7 +19,7 @@ func TestExec_NotSupportedLanguage_ReturnErr(t *testing.T) {
 	service := codexec.New(newMockContainerClient(t), &container.HostConfig{}, nil)
 	_, err := service.Exec(context.TODO(), codexec.ExecutionInfo{Lang: "nolang"})
 
-	assert.Equal(t, "language does not supported", err.Error())
+	assert.Equal(t, "language is not supported", err.Error())
 }
 
 func TestExec_ContainerCreateFailure_ReturnErr(t *testing.T) {
