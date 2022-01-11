@@ -47,6 +47,37 @@ func (p *Pool) Get() *ContainerNode {
 	return p.Curr
 }
 
+func (p *Pool) Remove(id string) {
+	// Remove from nodes and from list
+	// Add to garbage to collect later
+	nodeToRemove := p.Nodes[id]
+	delete(p.Nodes, id)
+
+	if p.Head == p.Tail {
+		p.Head = nil
+		p.Tail = nil
+		return
+	}
+
+	if p.Head == nodeToRemove {
+		p.Head.Next.Prev = p.Head.Prev
+		p.Head = p.Head.Next
+		return
+	}
+
+	if p.Tail == nodeToRemove {
+		p.Tail.Prev.Next = p.Tail.Next
+		p.Tail = p.Tail.Prev
+		return
+	}
+
+	nodeToRemove.Next.Prev = nodeToRemove.Prev
+	nodeToRemove.Prev.Next = nodeToRemove.Next
+
+	nodeToRemove.Next = nil
+	nodeToRemove.Prev = nil
+}
+
 func (p *Pool) Add(id string) {
 	node := &ContainerNode{ID: id}
 	p.Nodes[id] = node

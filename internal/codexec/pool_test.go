@@ -66,5 +66,48 @@ func TestPoolNext(t *testing.T) {
 }
 
 func TestPoolRemove(t *testing.T) {
+	pool := codexec.NewPool()
 
+	pool.Add("cid-1")
+	pool.Add("cid-2")
+	pool.Add("cid-2.5")
+	pool.Add("cid-3")
+	pool.Add("cid-4")
+
+	// remove cid-2.5
+	assert.Equal(t, "cid-2.5", pool.Head.Next.Next.ID)
+	pool.Remove("cid-2.5")
+	assert.NotContains(t, pool.Nodes, "cid-2.5")
+	assert.Equal(t, "cid-3", pool.Head.Next.Next.ID)
+
+	// remove cid-1
+	pool.Remove("cid-1")
+	assert.NotContains(t, pool.Nodes, "cid-1")
+	assert.Equal(t, "cid-2", pool.Head.ID)
+	assert.NotNil(t, pool.Head.Next)
+	assert.NotNil(t, pool.Head.Prev)
+
+	// remove cid-4
+	pool.Remove("cid-4")
+	assert.NotContains(t, pool.Nodes, "cid-4")
+	assert.Equal(t, "cid-3", pool.Tail.ID)
+	assert.NotNil(t, pool.Tail.Next)
+	assert.NotNil(t, pool.Tail.Prev)
+
+	// remove cid-3
+	pool.Remove("cid-3")
+	assert.NotContains(t, pool.Nodes, "cid-3")
+	assert.Equal(t, "cid-2", pool.Tail.ID)
+	assert.NotNil(t, pool.Tail.Next)
+	assert.NotNil(t, pool.Tail.Prev)
+
+	// remove cid-2
+	pool.Remove("cid-2")
+	assert.NotContains(t, pool.Nodes, "cid-2")
+	assert.Nil(t, pool.Head)
+	assert.Nil(t, pool.Tail)
+
+	// do nothing
+	pool.Remove("cid-unknown")
+	pool.Remove("cid-unknown")
 }
