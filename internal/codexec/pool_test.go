@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPoolAdd(t *testing.T) {
-	pool := codexec.NewPool()
+func TestContainerPoolAdd(t *testing.T) {
+	pool := codexec.NewContainerPool()
 
 	pool.Add("cid-1")
 	pool.Add("cid-2")
@@ -44,8 +44,8 @@ func TestPoolAdd(t *testing.T) {
 	assert.Contains(t, pool.Nodes, "cid-3")
 }
 
-func TestPoolNext(t *testing.T) {
-	pool := codexec.NewPool()
+func TestContainerPoolNext(t *testing.T) {
+	pool := codexec.NewContainerPool()
 
 	// when pool is empty, return nil
 	assert.Nil(t, pool.Get())
@@ -65,8 +65,8 @@ func TestPoolNext(t *testing.T) {
 	assert.Equal(t, "cid-1", fourth)
 }
 
-func TestPoolRemove(t *testing.T) {
-	pool := codexec.NewPool()
+func TestContainerPoolRemove(t *testing.T) {
+	pool := codexec.NewContainerPool()
 
 	pool.Add("cid-1")
 	pool.Add("cid-2")

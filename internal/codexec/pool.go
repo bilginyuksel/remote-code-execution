@@ -15,10 +15,10 @@ type (
 		Next *ContainerNode
 	}
 
-	// Pool stores the container nodes in a structured way
+	// ContainerPool stores the container nodes in a structured way
 	// Active container nodes stored in a Circular Doubly Linked List and Nodes map
 	// Passive, Exited container nodes are removed from CDLL and stored in garbage
-	Pool struct {
+	ContainerPool struct {
 		Head    *ContainerNode
 		Tail    *ContainerNode
 		Curr    *ContainerNode
@@ -27,14 +27,14 @@ type (
 	}
 )
 
-func NewPool() *Pool {
-	return &Pool{
+func NewContainerPool() *ContainerPool {
+	return &ContainerPool{
 		Nodes:   make(map[string]*ContainerNode),
 		Garbage: make(map[string]*ContainerNode),
 	}
 }
 
-func (p *Pool) Get() *ContainerNode {
+func (p *ContainerPool) Get() *ContainerNode {
 	if p.Head == nil {
 		return nil
 	}
@@ -47,7 +47,7 @@ func (p *Pool) Get() *ContainerNode {
 	return p.Curr
 }
 
-func (p *Pool) Remove(id string) {
+func (p *ContainerPool) Remove(id string) {
 	// Remove from nodes and from list
 	// Add to garbage to collect later
 	nodeToRemove := p.Nodes[id]
@@ -78,7 +78,7 @@ func (p *Pool) Remove(id string) {
 	nodeToRemove.Prev = nil
 }
 
-func (p *Pool) Add(id string) {
+func (p *ContainerPool) Add(id string) {
 	node := &ContainerNode{ID: id}
 	p.Nodes[id] = node
 
