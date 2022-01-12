@@ -1,9 +1,26 @@
+# build phase
 FROM golang:1.17
 
-RUN mkdir /app /target
+WORKDIR /app
+COPY . /app
 
-WORKDIR /rce
-COPY . /rce
+ENV CGO_ENABLED=0
+
+RUN go build -o rce-engine .
+
+# execution phase
+FROM alpine:latest
+
+USER root
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /
+RUN mkdir app target .config
+
+COPY --from=0 /app/rce-engine .
+COPY --from=0 /app/.config/dev.yml .config/dev.yml
+# TODO: Change the app environment when it is prod
 ENV APP_ENV=dev
 
-CMD ["go", "run", ".", "serve"]
+CMD ["./rce-engine", "serve"]

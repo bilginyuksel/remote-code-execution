@@ -42,7 +42,7 @@ APP_ENV=local go run . serve
 
 Build the rce image
 ```bash
-docker build --progress=plain . -t rce
+docker build --progress=plain -t rce -f dev.Dockerfile . 
 ```
 
 Run the container with the image you have created before.
