@@ -19,6 +19,7 @@ type (
 	ContainerClient interface {
 		Create(ctx context.Context, hostConfig *container.HostConfig) (string, error)
 		Exec(ctx context.Context, id, workingDir string, cmd []string) (*rc.ExecRes, error)
+		List(ctx context.Context) ([]string, error)
 		ForceRemove(ctx context.Context, id string)
 	}
 
