@@ -5,6 +5,7 @@ mockgen:
 	mockgen -destination=internal/mocks/mock_container_client.go -package mocks github.com/codigician/remote-code-execution/internal/codexec ContainerClient
 	mockgen -destination=internal/mocks/mock_codexecutor.go -package mocks github.com/codigician/remote-code-execution/internal/codexec Codexecutor 
 	mockgen -destination=internal/mocks/mock_remote_codexecutor_service.go -package mocks github.com/codigician/remote-code-execution/internal/handler RemoteCodeExecutorService
+	mockgen -destination=internal/mocks/mock_balancer_service.go -package mocks github.com/codigician/remote-code-execution/internal/handler BalancerService
 
 unit-test:
 	go test ./... -v -short

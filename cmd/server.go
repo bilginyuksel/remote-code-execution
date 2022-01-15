@@ -53,5 +53,10 @@ func startServer(c *cli.Context) error {
 	codexecHandler := handler.NewRemoteCodeExecutor(codexecService)
 	codexecHandler.RegisterRoutes(e)
 
+	balancerService := codexec.NewContainerBalancer(containerClient, codexec.NewContainerPool(),
+		&containerHostConfig, codexecService)
+	balancerHandler := handler.NewBalancer(balancerService)
+	balancerHandler.RegisterRoutes(e)
+
 	return e.Start(fmt.Sprintf(":%d", c.Int("port")))
 }
