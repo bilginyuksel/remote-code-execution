@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (c *Codexec) Exec(ctx context.Context, info ExecutionInfo) ([]byte, error) {
+func (c *Codexec) ExecOnce(ctx context.Context, info ExecutionInfo) ([]byte, error) {
 	if !supportedLanguages.IsSupported(info.Lang) {
 		return nil, errors.New("language is not supported")
 	}

@@ -35,17 +35,17 @@ func (m *MockRemoteCodeExecutorService) EXPECT() *MockRemoteCodeExecutorServiceM
 	return m.recorder
 }
 
-// Exec mocks base method.
-func (m *MockRemoteCodeExecutorService) Exec(arg0 context.Context, arg1 codexec.ExecutionInfo) ([]byte, error) {
+// ExecOnce mocks base method.
+func (m *MockRemoteCodeExecutorService) ExecOnce(arg0 context.Context, arg1 codexec.ExecutionInfo) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exec", arg0, arg1)
+	ret := m.ctrl.Call(m, "ExecOnce", arg0, arg1)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Exec indicates an expected call of Exec.
-func (mr *MockRemoteCodeExecutorServiceMockRecorder) Exec(arg0, arg1 interface{}) *gomock.Call {
+// ExecOnce indicates an expected call of ExecOnce.
+func (mr *MockRemoteCodeExecutorServiceMockRecorder) ExecOnce(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockRemoteCodeExecutorService)(nil).Exec), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecOnce", reflect.TypeOf((*MockRemoteCodeExecutorService)(nil).ExecOnce), arg0, arg1)
 }

@@ -60,7 +60,7 @@ func TestRemoteCodeExecutor(t *testing.T) {
 			req.Header.Set(echo.HeaderAccept, echo.MIMETextPlain)
 
 			mockExecutor.EXPECT().
-				Exec(gomock.Any(), tc.mockCodexecReq).
+				ExecOnce(gomock.Any(), tc.mockCodexecReq).
 				Return([]byte("some response"), tc.mockErr).
 				AnyTimes()
 

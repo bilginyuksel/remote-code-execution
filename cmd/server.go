@@ -37,8 +37,7 @@ func startServer(c *cli.Context) error {
 		env                 = os.Getenv("APP_ENV")
 	)
 
-	err := config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig)
-	if err != nil {
+	if err := config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig); err != nil {
 		return err
 	}
 
@@ -47,12 +46,8 @@ func startServer(c *cli.Context) error {
 		return err
 	}
 
-	containerClient := rc.NewClient(dockerClient, &containerConfig)
-	if err != nil {
-		return err
-	}
-
 	e := echo.New()
+	containerClient := rc.NewClient(dockerClient, &containerConfig)
 
 	codexecService := codexec.New(containerClient, &containerHostConfig, codexec.WriteFile)
 	codexecHandler := handler.NewRemoteCodeExecutor(codexecService)

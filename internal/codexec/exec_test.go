@@ -17,7 +17,7 @@ import (
 
 func TestExec_NotSupportedLanguage_ReturnErr(t *testing.T) {
 	service := codexec.New(newMockContainerClient(t), &container.HostConfig{}, nil)
-	_, err := service.Exec(context.TODO(), codexec.ExecutionInfo{Lang: "nolang"})
+	_, err := service.ExecOnce(context.TODO(), codexec.ExecutionInfo{Lang: "nolang"})
 
 	assert.Equal(t, "language is not supported", err.Error())
 }
@@ -27,7 +27,7 @@ func TestExec_ContainerCreateFailure_ReturnErr(t *testing.T) {
 	service := codexec.New(mockContainerClient, &container.HostConfig{}, nil)
 	mockContainerClient.EXPECT().Create(gomock.Any(), gomock.Any()).Return("", errors.New("create failed"))
 
-	_, err := service.Exec(context.TODO(), codexec.ExecutionInfo{Lang: "python3"})
+	_, err := service.ExecOnce(context.TODO(), codexec.ExecutionInfo{Lang: "python3"})
 
 	assert.Equal(t, "create failed", err.Error())
 }
@@ -44,7 +44,7 @@ func TestExec_WriteFailure_ReturnErr(t *testing.T) {
 	service := codexec.New(mockContainerClient, &container.HostConfig{},
 		func(baseDir, filename, content string) (string, error) { return "", errors.New("could not write") })
 
-	_, err := service.Exec(context.TODO(), codexec.ExecutionInfo{Lang: "golang"})
+	_, err := service.ExecOnce(context.TODO(), codexec.ExecutionInfo{Lang: "golang"})
 
 	assert.Equal(t, "could not write", err.Error())
 }
@@ -68,7 +68,7 @@ func TestExec(t *testing.T) {
 	service := codexec.New(mockContainerClient, &container.HostConfig{},
 		func(baseDir, filename, content string) (string, error) { return mockFilepath, nil })
 
-	res, err := service.Exec(context.TODO(), codexec.ExecutionInfo{
+	res, err := service.ExecOnce(context.TODO(), codexec.ExecutionInfo{
 		Lang: "golang",
 		Content: `package main
 

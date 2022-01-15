@@ -10,7 +10,7 @@ import (
 
 type (
 	RemoteCodeExecutorService interface {
-		Exec(ctx context.Context, info codexec.ExecutionInfo) ([]byte, error)
+		ExecOnce(ctx context.Context, info codexec.ExecutionInfo) ([]byte, error)
 	}
 
 	RemoteCodeExecutor struct {
@@ -38,7 +38,7 @@ func (r *RemoteCodeExecutor) Exec(ctx echo.Context) error {
 		return err
 	}
 
-	res, err := r.rce.Exec(ctx.Request().Context(), request.ToCodexecInfo())
+	res, err := r.rce.ExecOnce(ctx.Request().Context(), request.ToCodexecInfo())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
