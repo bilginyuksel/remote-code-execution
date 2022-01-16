@@ -56,7 +56,7 @@ func TestRemoteCodeExecutor(t *testing.T) {
 	for _, tc := range rceTests {
 		t.Run(tc.scenario, func(t *testing.T) {
 			reqBytes, _ := json.Marshal(tc.requestBody)
-			req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/codexec", srv.URL), bytes.NewBuffer(reqBytes))
+			req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/v1/codexec", srv.URL), bytes.NewBuffer(reqBytes))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			req.Header.Set(echo.HeaderAccept, echo.MIMETextPlain)
 

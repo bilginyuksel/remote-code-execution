@@ -29,7 +29,7 @@ func NewRemoteCodeExecutor(rce RemoteCodeExecutorService) *RemoteCodeExecutor {
 }
 
 func (r *RemoteCodeExecutor) RegisterRoutes(e *echo.Echo) {
-	e.POST("/codexec", r.Exec)
+	e.POST("/v1/codexec", r.Exec)
 }
 
 func (r *RemoteCodeExecutor) Exec(ctx echo.Context) error {

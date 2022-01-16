@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"time"
@@ -15,6 +16,10 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli/v2"
+)
+
+const (
+	_shutdownTimeoutDuration = time.Second * 3
 )
 
 func CommandServe() *cli.Command {
@@ -62,12 +67,16 @@ func startServer(c *cli.Context) error {
 	balancerHandler := handler.NewBalancer(balancerService)
 	balancerHandler.RegisterRoutes(e)
 
-	go e.Start(fmt.Sprintf(":%d", c.Int("port")))
+	go func() {
+		if err := e.Start(fmt.Sprintf(":%d", c.Int("port"))); err != nil {
+			log.Println("server err", err)
+		}
+	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), _shutdownTimeoutDuration)
 	defer cancel()
 	balancerService.Shutdown(ctx)
 	return e.Shutdown(ctx)
