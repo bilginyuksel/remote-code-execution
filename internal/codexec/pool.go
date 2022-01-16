@@ -56,7 +56,12 @@ func (p *ContainerPool) Remove(id string) {
 	if p.Head == p.Tail {
 		p.Head = nil
 		p.Tail = nil
+		p.Curr = nil
 		return
+	}
+
+	if p.Curr == nodeToRemove {
+		p.Curr = nodeToRemove.Next
 	}
 
 	if p.Head == nodeToRemove {
@@ -87,6 +92,7 @@ func (p *ContainerPool) Add(id string) {
 		node.Prev = node
 		p.Head = node
 		p.Tail = node
+		p.Curr = node
 		return
 	}
 

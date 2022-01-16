@@ -78,12 +78,14 @@ func TestContainerPoolRemove(t *testing.T) {
 	assert.Equal(t, "cid-2.5", pool.Head.Next.Next.ID)
 	pool.Remove("cid-2.5")
 	assert.NotContains(t, pool.Nodes, "cid-2.5")
+	assert.Equal(t, "cid-1", pool.Curr.ID)
 	assert.Equal(t, "cid-3", pool.Head.Next.Next.ID)
 
 	// remove cid-1
 	pool.Remove("cid-1")
 	assert.NotContains(t, pool.Nodes, "cid-1")
 	assert.Equal(t, "cid-2", pool.Head.ID)
+	assert.Equal(t, "cid-2", pool.Curr.ID)
 	assert.NotNil(t, pool.Head.Next)
 	assert.NotNil(t, pool.Head.Prev)
 
@@ -91,6 +93,7 @@ func TestContainerPoolRemove(t *testing.T) {
 	pool.Remove("cid-4")
 	assert.NotContains(t, pool.Nodes, "cid-4")
 	assert.Equal(t, "cid-3", pool.Tail.ID)
+	assert.Equal(t, "cid-2", pool.Curr.ID)
 	assert.NotNil(t, pool.Tail.Next)
 	assert.NotNil(t, pool.Tail.Prev)
 
@@ -98,6 +101,7 @@ func TestContainerPoolRemove(t *testing.T) {
 	pool.Remove("cid-3")
 	assert.NotContains(t, pool.Nodes, "cid-3")
 	assert.Equal(t, "cid-2", pool.Tail.ID)
+	assert.Equal(t, "cid-2", pool.Curr.ID)
 	assert.NotNil(t, pool.Tail.Next)
 	assert.NotNil(t, pool.Tail.Prev)
 
@@ -106,6 +110,7 @@ func TestContainerPoolRemove(t *testing.T) {
 	assert.NotContains(t, pool.Nodes, "cid-2")
 	assert.Nil(t, pool.Head)
 	assert.Nil(t, pool.Tail)
+	assert.Nil(t, pool.Curr)
 
 	// do nothing
 	pool.Remove("cid-unknown")
