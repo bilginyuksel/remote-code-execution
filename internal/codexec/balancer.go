@@ -70,3 +70,11 @@ func (cb *ContainerBalancer) FillPool(ctx context.Context) {
 func (cb *ContainerBalancer) Balance(ctx context.Context) {
 
 }
+
+func (cb *ContainerBalancer) Shutdown(ctx context.Context) {
+	for node := cb.containerPool.Get(); node != nil; node = cb.containerPool.Get() {
+		log.Printf("removing container with the id: %v", node.ID)
+		cb.containerClient.ForceRemove(ctx, node.ID)
+		cb.containerPool.Remove(node.ID)
+	}
+}

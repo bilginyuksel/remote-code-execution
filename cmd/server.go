@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/codigician/remote-code-execution/internal/codexec"
 	"github.com/codigician/remote-code-execution/internal/handler"
@@ -53,10 +56,19 @@ func startServer(c *cli.Context) error {
 	codexecHandler := handler.NewRemoteCodeExecutor(codexecService)
 	codexecHandler.RegisterRoutes(e)
 
-	balancerService := codexec.NewContainerBalancer(containerClient, codexec.NewContainerPool(),
-		&containerHostConfig, codexecService)
+	pool := codexec.NewContainerPool()
+	balancerService := codexec.NewContainerBalancer(containerClient, pool, &containerHostConfig, codexecService)
+	balancerService.FillPool(context.Background())
 	balancerHandler := handler.NewBalancer(balancerService)
 	balancerHandler.RegisterRoutes(e)
 
-	return e.Start(fmt.Sprintf(":%d", c.Int("port")))
+	go e.Start(fmt.Sprintf(":%d", c.Int("port")))
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	balancerService.Shutdown(ctx)
+	return e.Shutdown(ctx)
 }

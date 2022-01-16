@@ -91,3 +91,23 @@ func TestBalancerExec_ThereIsContainerInPool_GetContainerThenExecute(t *testing.
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
 }
+
+func TestBalancerShutdown(t *testing.T) {
+	mockContainerClient := newMockContainerClient(t)
+	pool := codexec.NewContainerPool()
+	pool.Add("cid-1")
+	pool.Add("cid-2")
+	pool.Add("cid-3")
+
+	mockContainerClient.EXPECT().ForceRemove(context.TODO(), "cid-1").Times(1)
+	mockContainerClient.EXPECT().ForceRemove(context.TODO(), "cid-2").Times(1)
+	mockContainerClient.EXPECT().ForceRemove(context.TODO(), "cid-3").Times(1)
+
+	balancer := codexec.NewContainerBalancer(mockContainerClient, pool, nil, nil)
+	balancer.Shutdown(context.TODO())
+
+	assert.Empty(t, pool.Nodes)
+	assert.Nil(t, pool.Head)
+	assert.Nil(t, pool.Tail)
+	assert.Nil(t, pool.Curr)
+}
