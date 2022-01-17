@@ -3,7 +3,9 @@ package codexec_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/codigician/remote-code-execution/internal/codexec"
 	"github.com/codigician/remote-code-execution/internal/mocks"
@@ -110,4 +112,66 @@ func TestBalancerShutdown(t *testing.T) {
 	assert.Nil(t, pool.Head)
 	assert.Nil(t, pool.Tail)
 	assert.Nil(t, pool.Curr)
+}
+
+func TestBalancerBalance_CreateEveryContainerWithoutProblem(t *testing.T) {
+	mockContainerClient := newMockContainerClient(t)
+	pool := codexec.NewContainerPool()
+	balancer := codexec.NewContainerBalancer(mockContainerClient, pool, nil, nil)
+
+	var (
+		mockContainerIDs []string
+		callIndex        int
+	)
+	for i := 0; i < 10; i++ {
+		mockContainerIDs = append(mockContainerIDs, fmt.Sprintf("cid-%d", i))
+	}
+
+	mockContainerClient.EXPECT().Create(context.TODO(), nil).
+		DoAndReturn(func(ctx context.Context, conf *container.HostConfig) (string, error) {
+			defer func() { callIndex++ }()
+			return mockContainerIDs[callIndex], nil
+		}).Times(10)
+
+	ticker := time.NewTicker(50 * time.Millisecond)
+	go balancer.Balance(ticker)
+	time.Sleep(60 * time.Millisecond)
+	ticker.Stop()
+
+	assert.Len(t, pool.Nodes, 10)
+}
+
+func TestBalancerBalance_FailNTimes_CreateNotFailedContainersOnly(t *testing.T) {
+	mockContainerClient := newMockContainerClient(t)
+	pool := codexec.NewContainerPool()
+	balancer := codexec.NewContainerBalancer(mockContainerClient, pool, nil, nil)
+
+	var (
+		mockContainerIDs  []string
+		mockContainerErrs []error
+		callIndex         int
+	)
+	// 7 successful calls
+	for i := 0; i < 7; i++ {
+		mockContainerIDs = append(mockContainerIDs, fmt.Sprintf("cid-%d", i))
+		mockContainerErrs = append(mockContainerErrs, nil)
+	}
+	// 3 failed calls
+	for i := 0; i < 3; i++ {
+		mockContainerIDs = append(mockContainerIDs, "")
+		mockContainerErrs = append(mockContainerErrs, errors.New("err"))
+	}
+
+	mockContainerClient.EXPECT().Create(context.TODO(), nil).
+		DoAndReturn(func(ctx context.Context, conf *container.HostConfig) (string, error) {
+			defer func() { callIndex++ }()
+			return mockContainerIDs[callIndex], mockContainerErrs[callIndex]
+		}).Times(10)
+
+	ticker := time.NewTicker(50 * time.Millisecond)
+	go balancer.Balance(ticker)
+	time.Sleep(60 * time.Millisecond)
+	ticker.Stop()
+
+	assert.Len(t, pool.Nodes, 7)
 }
