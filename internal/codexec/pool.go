@@ -39,10 +39,6 @@ func (p *ContainerPool) Get() *ContainerNode {
 		return nil
 	}
 
-	if p.Curr == nil {
-		p.Curr = p.Head
-	}
-
 	defer func() { p.Curr = p.Curr.Next }()
 	return p.Curr
 }
