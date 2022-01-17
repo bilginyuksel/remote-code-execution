@@ -3,9 +3,12 @@ package codexec
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 )
+
+const _desiredActiveContainerCount = 10
 
 type (
 	Codexecutor interface {
@@ -67,8 +70,20 @@ func (cb *ContainerBalancer) FillPool(ctx context.Context) {
 // the existing ones to not waste a resource.
 // If there is no snapshot just took a snapshot and also
 // limit the container creation and deletion to the min and max limits.
-func (cb *ContainerBalancer) Balance(ctx context.Context) {
-
+func (cb *ContainerBalancer) Balance(ticker *time.Ticker) {
+	for range ticker.C {
+		log.Println("Rebalancing containers..")
+		countOfActiveContainers := len(cb.containerPool.Nodes)
+		countOfContainerToCreate := _desiredActiveContainerCount - countOfActiveContainers
+		for ; countOfContainerToCreate > 0; countOfContainerToCreate-- {
+			id, err := cb.containerClient.Create(context.Background(), cb.hostConfig)
+			if err != nil {
+				log.Printf("could not create container, err: %v\n", err)
+				continue
+			}
+			cb.containerPool.Add(id)
+		}
+	}
 }
 
 func (cb *ContainerBalancer) Shutdown(ctx context.Context) {
