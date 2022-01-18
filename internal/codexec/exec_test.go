@@ -55,7 +55,7 @@ func TestExecOnce(t *testing.T) {
 	defer time.Sleep(10 * time.Millisecond)
 
 	containerID := "c1"
-	mockResponse := &rc.ExecRes{Buffer: []byte("resp"), Success: true}
+	mockResponse := rc.NewExecRes("resp", "", time.Second)
 	mockFilepath := fmt.Sprintf("%s/%s/Main.go", codexec.MountSource, "ransomid")
 	expectedFileDir := fmt.Sprintf("%s/%s/", codexec.MountTarget, "ransomid")
 	expectedCmd := []string{"bash", "-c", "/usr/local/go/bin/go run Main.go yuksel"}
@@ -84,7 +84,8 @@ func main() {
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, mockResponse.Buffer, res)
+	assert.Equal(t, mockResponse.Buffer(), res.Output)
+	assert.Equal(t, mockResponse.ExecutionTime, res.ExecutionTime)
 }
 
 func TestExec_NotSupportedLanguage_ReturnError(t *testing.T) {
@@ -105,7 +106,7 @@ func TestExec_WriteFailure_ReturnErr(t *testing.T) {
 
 func TestExec(t *testing.T) {
 	containerID := "c1"
-	mockResponse := &rc.ExecRes{Buffer: []byte("resp"), Success: true}
+	mockResponse := rc.NewExecRes("resp", "", time.Second)
 	mockFilepath := fmt.Sprintf("%s/%s/Main.go", codexec.MountSource, "ransomid")
 	expectedFileDir := fmt.Sprintf("%s/%s/", codexec.MountTarget, "ransomid")
 	expectedCmd := []string{"bash", "-c", "/usr/local/go/bin/go run Main.go yuksel"}
@@ -132,7 +133,8 @@ func main() {
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, mockResponse.Buffer, res)
+	assert.Equal(t, mockResponse.Buffer(), res.Output)
+	assert.Equal(t, mockResponse.ExecutionTime, res.ExecutionTime)
 }
 
 func newMockContainerClient(t *testing.T) *mocks.MockContainerClient {

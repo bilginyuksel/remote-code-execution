@@ -58,11 +58,11 @@ func TestRemoteCodeExecutor(t *testing.T) {
 			reqBytes, _ := json.Marshal(tc.requestBody)
 			req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/v1/codexec", srv.URL), bytes.NewBuffer(reqBytes))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-			req.Header.Set(echo.HeaderAccept, echo.MIMETextPlain)
+			req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 
 			mockExecutor.EXPECT().
 				ExecOnce(gomock.Any(), tc.mockCodexecReq).
-				Return([]byte("some response"), tc.mockErr).
+				Return(&codexec.ExecutionRes{}, tc.mockErr).
 				AnyTimes()
 
 			res, _ := http.DefaultClient.Do(req)

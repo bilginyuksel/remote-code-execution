@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	_shutdownTimeoutDuration = time.Second * 3
+	_shutdownTimeoutDuration  = time.Second * 5
+	_balancerIntervalDuration = time.Second * 10
 )
 
 func CommandServe() *cli.Command {
@@ -62,8 +63,10 @@ func startServer(c *cli.Context) error {
 	codexecHandler.RegisterRoutes(e)
 
 	pool := codexec.NewContainerPool()
+	ticker := time.NewTicker(_balancerIntervalDuration)
 	balancerService := codexec.NewContainerBalancer(containerClient, pool, &containerHostConfig, codexecService)
 	balancerService.FillPool(context.Background())
+	go balancerService.Balance(ticker)
 	balancerHandler := handler.NewBalancer(balancerService)
 	balancerHandler.RegisterRoutes(e)
 
@@ -79,5 +82,6 @@ func startServer(c *cli.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), _shutdownTimeoutDuration)
 	defer cancel()
 	balancerService.Shutdown(ctx)
+	ticker.Stop()
 	return e.Shutdown(ctx)
 }

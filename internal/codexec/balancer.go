@@ -12,7 +12,7 @@ const _desiredActiveContainerCount = 10
 
 type (
 	Codexecutor interface {
-		Exec(ctx context.Context, containerID string, info ExecutionInfo) ([]byte, error)
+		Exec(ctx context.Context, containerID string, info ExecutionInfo) (*ExecutionRes, error)
 	}
 
 	ContainerBalancer struct {
@@ -37,7 +37,7 @@ func NewContainerBalancer(containerClient ContainerClient, containerPool *Contai
 // to use that container to execute the programming content
 // when execution is done send response to client and start a goroutine
 // to update the container status and metrics
-func (cb *ContainerBalancer) Exec(ctx context.Context, info ExecutionInfo) ([]byte, error) {
+func (cb *ContainerBalancer) Exec(ctx context.Context, info ExecutionInfo) (*ExecutionRes, error) {
 	if node := cb.containerPool.Get(); node != nil {
 		return cb.executor.Exec(ctx, node.ID, info)
 	}

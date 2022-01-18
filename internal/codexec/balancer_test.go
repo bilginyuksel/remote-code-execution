@@ -53,7 +53,7 @@ func TestBalancerExec_NoContainersInPool_CreateContainerAddToPoolThenExecute(t *
 	info := codexec.ExecutionInfo{}
 
 	mockContainerClient.EXPECT().Create(context.Background(), conf).Return("cid-1", nil).Times(1)
-	mockCodexecutor.EXPECT().Exec(gomock.Any(), "cid-1", info).Return([]byte("result"), nil).Times(1)
+	mockCodexecutor.EXPECT().Exec(gomock.Any(), "cid-1", info).Return(&codexec.ExecutionRes{}, nil).Times(1)
 
 	res, err := balancer.Exec(context.Background(), info)
 
@@ -85,7 +85,7 @@ func TestBalancerExec_ThereIsContainerInPool_GetContainerThenExecute(t *testing.
 	pool.Add("cid-1")
 
 	var info codexec.ExecutionInfo
-	mockCodexecutor.EXPECT().Exec(gomock.Any(), "cid-1", info).Return([]byte("result"), nil).Times(1)
+	mockCodexecutor.EXPECT().Exec(gomock.Any(), "cid-1", info).Return(&codexec.ExecutionRes{}, nil).Times(1)
 
 	balancer := codexec.NewContainerBalancer(nil, pool, nil, mockCodexecutor)
 	res, err := balancer.Exec(context.Background(), info)

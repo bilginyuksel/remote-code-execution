@@ -36,10 +36,10 @@ func (m *MockCodexecutor) EXPECT() *MockCodexecutorMockRecorder {
 }
 
 // Exec mocks base method.
-func (m *MockCodexecutor) Exec(arg0 context.Context, arg1 string, arg2 codexec.ExecutionInfo) ([]byte, error) {
+func (m *MockCodexecutor) Exec(arg0 context.Context, arg1 string, arg2 codexec.ExecutionInfo) (*codexec.ExecutionRes, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Exec", arg0, arg1, arg2)
-	ret0, _ := ret[0].([]byte)
+	ret0, _ := ret[0].(*codexec.ExecutionRes)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

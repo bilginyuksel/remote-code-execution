@@ -4,28 +4,31 @@ import (
 	"bytes"
 	"context"
 	"log"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/pkg/stdcopy"
 )
 
 type ExecRes struct {
-	Buffer  []byte
-	Success bool
+	outBuffer     string
+	errBuffer     string
+	ExecutionTime time.Duration
 }
 
-func NewExecRes(outBuf, errBuf []byte) *ExecRes {
-	res := &ExecRes{
-		Buffer:  outBuf,
-		Success: true,
+func NewExecRes(outBuffer, errBuffer string, executionTime time.Duration) *ExecRes {
+	return &ExecRes{
+		outBuffer:     outBuffer,
+		errBuffer:     errBuffer,
+		ExecutionTime: executionTime,
 	}
+}
 
-	if outBuf == nil {
-		res.Buffer = errBuf
-		res.Success = false
+func (e *ExecRes) Buffer() string {
+	if e.outBuffer != "" {
+		return e.outBuffer
 	}
-
-	return res
+	return e.errBuffer
 }
 
 // Exec executes the given command to the container with the given id
@@ -43,6 +46,7 @@ func (c *Client) Exec(ctx context.Context, containerID, workingDir string, cmd [
 	}
 	log.Printf("container exec created, id: %s\n", createExecResponse.ID)
 
+	executionStartTime := time.Now()
 	attachExecRes, err := c.containerPort.ContainerExecAttach(ctx, createExecResponse.ID, types.ExecStartCheck{})
 	if err != nil {
 		log.Printf("container exec attach: %v\n", err)
@@ -52,5 +56,9 @@ func (c *Client) Exec(ctx context.Context, containerID, workingDir string, cmd [
 	var outBuffer, errBuffer bytes.Buffer
 	_, err = stdcopy.StdCopy(&outBuffer, &errBuffer, attachExecRes.Conn)
 	log.Printf("container exec attached, outBuffer: %v, errBuffer: %v\n", outBuffer.String(), errBuffer.String())
-	return NewExecRes(outBuffer.Bytes(), errBuffer.Bytes()), err
+	return &ExecRes{
+		outBuffer:     outBuffer.String(),
+		errBuffer:     errBuffer.String(),
+		ExecutionTime: time.Since(executionStartTime),
+	}, err
 }

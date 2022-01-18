@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/codigician/remote-code-execution/internal/mocks"
 	"github.com/codigician/remote-code-execution/internal/rc"
@@ -13,18 +14,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewExecRes_NilOutBuffer_UnsuccessfullAndErrBuffer(t *testing.T) {
-	res := rc.NewExecRes(nil, []byte("some error"))
+const _sampleDuration = time.Second
 
-	assert.False(t, res.Success)
-	assert.Equal(t, []byte("some error"), res.Buffer)
+func TestNewExecRes_NilOutBuffer_UnsuccessfullAndErrBuffer(t *testing.T) {
+	res := rc.NewExecRes("", "some error", _sampleDuration)
+
+	assert.Equal(t, "some error", res.Buffer())
 }
 
 func TestNewExecRes_HaveOutBuffer_SuccessfullAndOutBuffer(t *testing.T) {
-	res := rc.NewExecRes([]byte("some output"), nil)
+	res := rc.NewExecRes("some output", "", _sampleDuration)
 
-	assert.True(t, res.Success)
-	assert.Equal(t, []byte("some output"), res.Buffer)
+	assert.Equal(t, "some output", res.Buffer())
 }
 
 func TestExec_CreateExecFailed_ReturnErr(t *testing.T) {

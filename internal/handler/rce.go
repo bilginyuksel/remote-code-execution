@@ -10,7 +10,7 @@ import (
 
 type (
 	RemoteCodeExecutorService interface {
-		ExecOnce(ctx context.Context, info codexec.ExecutionInfo) ([]byte, error)
+		ExecOnce(ctx context.Context, info codexec.ExecutionInfo) (*codexec.ExecutionRes, error)
 	}
 
 	RemoteCodeExecutor struct {
@@ -21,6 +21,11 @@ type (
 		Lang    string   `json:"lang"`
 		Content string   `json:"content"`
 		Args    []string `json:"args"`
+	}
+
+	RemoteCodeExecutionResponse struct {
+		Output                    string `json:"output"`
+		ExecutionTimeMilliseconds int64  `json:"execution_time_ms"`
 	}
 )
 
@@ -43,7 +48,7 @@ func (r *RemoteCodeExecutor) Exec(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.Blob(http.StatusOK, echo.MIMETextPlain, res)
+	return ctx.JSON(http.StatusOK, FromExecutionResult(res))
 }
 
 func (r RemoteCodeExecuteRequest) ToCodexecInfo() codexec.ExecutionInfo {
@@ -51,5 +56,12 @@ func (r RemoteCodeExecuteRequest) ToCodexecInfo() codexec.ExecutionInfo {
 		Lang:    r.Lang,
 		Content: r.Content,
 		Args:    r.Args,
+	}
+}
+
+func FromExecutionResult(res *codexec.ExecutionRes) *RemoteCodeExecutionResponse {
+	return &RemoteCodeExecutionResponse{
+		Output:                    res.Output,
+		ExecutionTimeMilliseconds: res.ExecutionTime.Milliseconds(),
 	}
 }

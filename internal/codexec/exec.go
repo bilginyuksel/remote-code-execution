@@ -5,9 +5,15 @@ import (
 	"errors"
 	"log"
 	"strings"
+	"time"
 )
 
-func (c *Codexec) ExecOnce(ctx context.Context, info ExecutionInfo) ([]byte, error) {
+type ExecutionRes struct {
+	Output        string
+	ExecutionTime time.Duration
+}
+
+func (c *Codexec) ExecOnce(ctx context.Context, info ExecutionInfo) (*ExecutionRes, error) {
 	if !supportedLanguages.IsSupported(info.Lang) {
 		return nil, errors.New("language is not supported")
 	}
@@ -20,7 +26,7 @@ func (c *Codexec) ExecOnce(ctx context.Context, info ExecutionInfo) ([]byte, err
 	return c.exec(ctx, containerID, info)
 }
 
-func (c *Codexec) Exec(ctx context.Context, containerID string, info ExecutionInfo) ([]byte, error) {
+func (c *Codexec) Exec(ctx context.Context, containerID string, info ExecutionInfo) (*ExecutionRes, error) {
 	if !supportedLanguages.IsSupported(info.Lang) {
 		return nil, errors.New("language is not supported")
 	}
@@ -28,7 +34,7 @@ func (c *Codexec) Exec(ctx context.Context, containerID string, info ExecutionIn
 	return c.exec(ctx, containerID, info)
 }
 
-func (c *Codexec) exec(ctx context.Context, containerID string, info ExecutionInfo) ([]byte, error) {
+func (c *Codexec) exec(ctx context.Context, containerID string, info ExecutionInfo) (*ExecutionRes, error) {
 	sourceFilepath, err := c.write(MountSource, supportedLanguages[info.Lang].Filename(), info.Content)
 	if err != nil {
 		return nil, err
@@ -37,5 +43,8 @@ func (c *Codexec) exec(ctx context.Context, containerID string, info ExecutionIn
 	targetFileDir := strings.ReplaceAll(targetFilepath, supportedLanguages[info.Lang].Filename(), "")
 	log.Printf("container: %s, path= %s, cmd= %s\n", containerID, targetFilepath, info.Command())
 	res, err := c.containerClient.Exec(ctx, containerID, targetFileDir, info.Command())
-	return res.Buffer, err
+	return &ExecutionRes{
+		Output:        res.Buffer(),
+		ExecutionTime: res.ExecutionTime,
+	}, err
 }

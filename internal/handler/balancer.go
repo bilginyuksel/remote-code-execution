@@ -10,7 +10,7 @@ import (
 
 type (
 	BalancerService interface {
-		Exec(ctx context.Context, info codexec.ExecutionInfo) ([]byte, error)
+		Exec(ctx context.Context, info codexec.ExecutionInfo) (*codexec.ExecutionRes, error)
 	}
 
 	Balancer struct {
@@ -37,5 +37,5 @@ func (b *Balancer) Exec(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.Blob(http.StatusOK, echo.MIMETextPlain, res)
+	return ctx.JSON(http.StatusOK, FromExecutionResult(res))
 }

@@ -36,10 +36,10 @@ func (m *MockBalancerService) EXPECT() *MockBalancerServiceMockRecorder {
 }
 
 // Exec mocks base method.
-func (m *MockBalancerService) Exec(arg0 context.Context, arg1 codexec.ExecutionInfo) ([]byte, error) {
+func (m *MockBalancerService) Exec(arg0 context.Context, arg1 codexec.ExecutionInfo) (*codexec.ExecutionRes, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Exec", arg0, arg1)
-	ret0, _ := ret[0].([]byte)
+	ret0, _ := ret[0].(*codexec.ExecutionRes)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

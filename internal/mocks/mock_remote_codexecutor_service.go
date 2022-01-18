@@ -36,10 +36,10 @@ func (m *MockRemoteCodeExecutorService) EXPECT() *MockRemoteCodeExecutorServiceM
 }
 
 // ExecOnce mocks base method.
-func (m *MockRemoteCodeExecutorService) ExecOnce(arg0 context.Context, arg1 codexec.ExecutionInfo) ([]byte, error) {
+func (m *MockRemoteCodeExecutorService) ExecOnce(arg0 context.Context, arg1 codexec.ExecutionInfo) (*codexec.ExecutionRes, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecOnce", arg0, arg1)
-	ret0, _ := ret[0].([]byte)
+	ret0, _ := ret[0].(*codexec.ExecutionRes)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
