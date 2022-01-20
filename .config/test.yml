@@ -1,0 +1,8 @@
+# container config
+attachStdin: true
+attachStdout: true
+attachStderr: true
+tty: true
+cmd:
+  - "bash"
+image: "all-in-one-ubuntu:latest"
