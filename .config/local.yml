@@ -12,3 +12,6 @@ mounts:
   - type: "bind"
     source: "/Users/bilginyuksel/ps-workspace/remote-code-execution/target"
     target: "/app"
+
+# redis config
+addr: "localhost:6379"

@@ -61,7 +61,7 @@ func runExec(c *cli.Context) error {
 	}
 
 	rcClient := rc.NewClient(dockerClient, &containerConfig)
-	service := codexec.New(rcClient, &containerHostConfig, codexec.WriteFile)
+	service := codexec.New(rcClient, &containerHostConfig, codexec.WriteFile, nil)
 	res, err := service.ExecOnce(c.Context, codexec.ExecutionInfo{Lang: lang, Content: string(content)})
 	log.Println(res)
 	return err

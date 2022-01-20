@@ -35,16 +35,40 @@ func (c *Codexec) Exec(ctx context.Context, containerID string, info ExecutionIn
 }
 
 func (c *Codexec) exec(ctx context.Context, containerID string, info ExecutionInfo) (*ExecutionRes, error) {
-	sourceFilepath, err := c.write(MountSource, supportedLanguages[info.Lang].Filename(), info.Content)
+	targetFileDir, err := c.findOrWriteContent(supportedLanguages[info.Lang].Filename(), info.Content)
 	if err != nil {
 		return nil, err
 	}
-	targetFilepath := strings.ReplaceAll(sourceFilepath, MountSource, MountTarget)
-	targetFileDir := strings.ReplaceAll(targetFilepath, supportedLanguages[info.Lang].Filename(), "")
-	log.Printf("container: %s, path= %s, cmd= %s\n", containerID, targetFilepath, info.Command())
+	log.Printf("container: %s, path= %s, cmd= %s\n", containerID, targetFileDir, info.Command())
 	res, err := c.containerClient.Exec(ctx, containerID, targetFileDir, info.Command())
 	return &ExecutionRes{
 		Output:        res.Buffer(),
 		ExecutionTime: res.ExecutionTime,
 	}, err
+}
+
+func (c *Codexec) findOrWriteContent(filename, content string) (string, error) {
+	if dir, err := c.cache.Get(content).Result(); err == nil {
+		log.Printf("content found in cache, dir: %s\n", dir)
+		return dir, nil
+	}
+
+	dir, err := c.writeContent(filename, content)
+	if err != nil {
+		return "", err
+	}
+
+	status := c.cache.Set(content, dir, _cacheClearDuration)
+	log.Println(status)
+	return dir, nil
+}
+
+func (c *Codexec) writeContent(filename, content string) (string, error) {
+	sourceFilepath, err := c.write(MountSource, filename, content)
+	if err != nil {
+		return "", err
+	}
+	targetFilepath := strings.ReplaceAll(sourceFilepath, MountSource, MountTarget)
+	targetFileDir := strings.ReplaceAll(targetFilepath, filename, "")
+	return targetFileDir, nil
 }

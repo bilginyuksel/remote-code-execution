@@ -14,6 +14,7 @@ import (
 	"github.com/codigician/remote-code-execution/pkg/config"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/go-redis/redis"
 	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli/v2"
 )
@@ -43,10 +44,12 @@ func startServer(c *cli.Context) error {
 	var (
 		containerConfig     container.Config
 		containerHostConfig container.HostConfig
-		env                 = os.Getenv("APP_ENV")
+		redisConfig         redis.Options
+
+		env = os.Getenv("APP_ENV")
 	)
 
-	if err := config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig); err != nil {
+	if err := config.Read(fmt.Sprintf(".config/%s.yml", env), &containerConfig, &containerHostConfig, &redisConfig); err != nil {
 		return err
 	}
 
@@ -54,11 +57,12 @@ func startServer(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 	e := echo.New()
+
+	redisClient := redis.NewClient(&redisConfig)
 	containerClient := rc.NewClient(dockerClient, &containerConfig)
 
-	codexecService := codexec.New(containerClient, &containerHostConfig, codexec.WriteFile)
+	codexecService := codexec.New(containerClient, &containerHostConfig, codexec.WriteFile, redisClient)
 	codexecHandler := handler.NewRemoteCodeExecutor(codexecService)
 	codexecHandler.RegisterRoutes(e)
 

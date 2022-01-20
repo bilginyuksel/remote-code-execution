@@ -4,15 +4,19 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/codigician/remote-code-execution/internal/rc"
 	"github.com/docker/docker/api/types/container"
+	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 )
 
 const (
 	MountSource = "target"
 	MountTarget = "/app"
+
+	_cacheClearDuration = 24 * time.Hour
 )
 
 type (
@@ -23,20 +27,27 @@ type (
 		ForceRemove(ctx context.Context, id string)
 	}
 
+	Cache interface {
+		Set(key string, value interface{}, expirationDuration time.Duration) *redis.StatusCmd
+		Get(key string) *redis.StringCmd
+	}
+
 	Write func(baseDir, filename, content string) (string, error)
 
 	Codexec struct {
 		containerClient ContainerClient
 		hostConfig      *container.HostConfig
 		write           Write
+		cache           Cache
 	}
 )
 
-func New(containerClient ContainerClient, hostConfig *container.HostConfig, write Write) *Codexec {
+func New(containerClient ContainerClient, hostConfig *container.HostConfig, write Write, cache Cache) *Codexec {
 	return &Codexec{
 		containerClient: containerClient,
 		hostConfig:      hostConfig,
 		write:           write,
+		cache:           cache,
 	}
 }
 
