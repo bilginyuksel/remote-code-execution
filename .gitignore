@@ -2,3 +2,4 @@ coverage.out
 /target/*
 rce
 .vscode/
+.idea
