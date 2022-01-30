@@ -19,8 +19,8 @@ WORKDIR /
 RUN mkdir app target .config
 
 COPY --from=0 /app/rce-engine .
-COPY --from=0 /app/.config/dev.yml .config/dev.yml
+COPY --from=0 /app/.config/prod.yml .config/prod.yml
 # TODO: Change the app environment when it is prod
-ENV APP_ENV=dev
+ENV APP_ENV=prod
 
 CMD ["./rce-engine", "serve"]
