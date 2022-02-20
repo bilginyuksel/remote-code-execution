@@ -1,10 +1,24 @@
 # Remote Code Execution
 
-Run the application codes for multiple languages using very simple APIs. 
+Run the application codes for multiple languages using very simple APIs.
 
 Remote code execution application creates a container then executes the code gives the response to client. Current architecture does not use __DIND(Docker in Docker)__. The containers share the same docker daemon.
 
 ![Remote Code Execution Architecture](.docs/images/codexec.png)
+
+## Test the application
+
+```bash
+curl --location --request POST 'http://3.67.10.139:8888/v2/codexec' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "lang": "python3",
+    "content": "import sys\ninp = sys.argv[1]\nfor i in range(int(inp)):\n\tprint('\''*'\'' * (i +1))",
+    "args": [
+        "20"
+    ]
+}'
+```
 
 ## Getting Started
 
@@ -25,7 +39,7 @@ mounts:
   - type: "bind"
     source: <source_path> # write the value here
     target: "/app"
-``` 
+```
 
 Build the all-in-one-ubuntu image
 ```bash
@@ -42,7 +56,7 @@ APP_ENV=local go run . serve
 
 Build the rce image
 ```bash
-docker build --progress=plain -t rce -f dev.Dockerfile . 
+docker build --progress=plain -t rce -f dev.Dockerfile .
 ```
 
 Run the container with the image you have created before.
