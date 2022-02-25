@@ -61,4 +61,5 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
+	github.com/yudai/pp v2.0.1+incompatible
 )
