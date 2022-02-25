@@ -12,7 +12,7 @@ import (
 
 const (
 	MountSource = "target"
-	MountTarget = "/app"
+	MountTarget = "/target"
 )
 
 type (

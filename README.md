@@ -120,3 +120,9 @@ function conkill {
 }
 conkill <container-id>
 ```
+
+## Deploy
+
+```bash
+docker run -dit -p 8888:8888 -v /var/run/docker.sock:/var/run/docker.sock --mount type=bind,source=$(pwd)/target,target=/target codigician/rce:v0.0.3-amd64
+```
