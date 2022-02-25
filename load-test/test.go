@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"sync"
@@ -19,7 +20,7 @@ const (
 	ContentType = "application/json"
 
 	TotalIterationCount       = 4
-	CycleStartingRequestCount = 500
+	CycleStartingRequestCount = 20
 	MaxIncreaseCoefficient    = 4
 )
 
@@ -36,19 +37,19 @@ var requestBodies = []RequestBody{
 		Args:    []string{"20"},
 	},
 	{
-		Lang:    "",
-		Content: ContentType,
-		Args:    []string{},
+		Lang:    "python3",
+		Content: "import sys\ninp = sys.argv[1]\nfor i in range(int(inp)):\n\tprint('*' * (i +1))",
+		Args:    []string{"50"},
 	},
 	{
-		Lang:    "",
-		Content: ContentType,
-		Args:    []string{},
+		Lang:    "python3",
+		Content: "import sys\ninp = sys.argv[1]\nfor i in range(int(inp)):\n\tprint('*' * (i +1))",
+		Args:    []string{"30"},
 	},
 	{
-		Lang:    "",
-		Content: ContentType,
-		Args:    []string{},
+		Lang:    "python3",
+		Content: "import sys\ninp = sys.argv[1]\nfor i in range(int(inp)):\n\tprint('*' * (i +1))",
+		Args:    []string{"40"},
 	},
 }
 
@@ -56,31 +57,33 @@ func main() {
 	var iterationReports [][]Report
 
 	for i := 0; i < TotalIterationCount; i++ {
-		var reports []Report
 
 		randomIncreaseCoefficient := rand.Intn(MaxIncreaseCoefficient) + 1
 		totalRequestCountForCycle := CycleStartingRequestCount * randomIncreaseCoefficient
 
-		gw := sync.WaitGroup{}
-		gw.Add(totalRequestCountForCycle)
+		var wg sync.WaitGroup
+		wg.Add(totalRequestCountForCycle)
 
+		reports := make([]Report, totalRequestCountForCycle)
 		log.Printf("Iteration %d starts with %d concurrent requests\n", i, totalRequestCountForCycle)
 		for j := 0; j < totalRequestCountForCycle; j++ {
-			go func(idx int) {
-				singleReport := hit(idx % len(requestBodies))
-				reports = append(reports, singleReport)
-			}(j)
+			go hitAndRun(&wg, j, reports)
 		}
-
-		gw.Wait()
+		wg.Wait()
 		iterationReports = append(iterationReports, reports)
 
-		log.Printf("Iteration %d finished..\nWaiting for 3 seconds..\n", i)
-		time.Sleep(3 * time.Second)
+		log.Printf("Iteration %d finished..\nWaiting for a second..\n", i)
+		time.Sleep(time.Second)
 	}
 
 	summaries := calculateReportsSummaries(iterationReports)
 	pp.Println(summaries)
+}
+
+func hitAndRun(wg *sync.WaitGroup, idx int, reports []Report) {
+	singleReport := hit(idx % len(requestBodies))
+	reports[idx] = singleReport
+	wg.Done()
 }
 
 type ReportsSummary struct {
@@ -106,7 +109,10 @@ func calculateReportsSummaries(iterationReports [][]Report) []ReportsSummary {
 	var summaries []ReportsSummary
 
 	for _, reports := range iterationReports {
-		summary := ReportsSummary{}
+		summary := ReportsSummary{
+			MinExecutionTimeMs:       math.MaxInt64,
+			MinServerExecutionTimeMs: math.MaxInt64,
+		}
 		for idx := range reports {
 			report := reports[idx]
 			if report.Failed {
@@ -118,11 +124,11 @@ func calculateReportsSummaries(iterationReports [][]Report) []ReportsSummary {
 			}
 
 			summary.MaxExecutionTimeMs = max(summary.MaxExecutionTimeMs, report.ExecutionTime.Milliseconds())
-			summary.MinExecutionTimeMs = max(summary.MinExecutionTimeMs, report.ExecutionTime.Milliseconds())
+			summary.MinExecutionTimeMs = min(summary.MinExecutionTimeMs, report.ExecutionTime.Milliseconds())
 			summary.AvgExecutionTimeMs += report.ExecutionTime.Milliseconds()
 
 			summary.MaxServerExecutionTimeMs = max(summary.MaxServerExecutionTimeMs, report.ServerExecutionTime.Milliseconds())
-			summary.MinServerExecutionTimeMs = max(summary.MinServerExecutionTimeMs, report.ServerExecutionTime.Milliseconds())
+			summary.MinServerExecutionTimeMs = min(summary.MinServerExecutionTimeMs, report.ServerExecutionTime.Milliseconds())
 			summary.AvgServerExecutionTimeMs += report.ServerExecutionTime.Milliseconds()
 		}
 
@@ -132,6 +138,8 @@ func calculateReportsSummaries(iterationReports [][]Report) []ReportsSummary {
 		summary.GarbageRate = float64(summary.GarbageCount) / float64(summary.TotalCount) * 100
 		summary.AvgExecutionTimeMs = summary.AvgExecutionTimeMs / summary.TotalCount
 		summary.AvgServerExecutionTimeMs = summary.AvgServerExecutionTimeMs / summary.TotalCount
+
+		summaries = append(summaries, summary)
 	}
 
 	return summaries
@@ -177,6 +185,7 @@ func hit(idx int) Report {
 		report.Garbage = true
 		return report
 	}
+	defer res.Body.Close()
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
