@@ -10,9 +10,10 @@ import (
 
 func TestStats_CallContainerStatsOneShot(t *testing.T) {
 	mockContainerPort := newMockContainerPort(t)
+	const containerID = "cid-1"
 
 	mockContainerPort.EXPECT().ContainerStatsOneShot(gomock.Any(), "cid-1")
 
 	client := rc.NewClient(mockContainerPort, nil)
-	client.Stats(context.TODO(), "cid-1")
+	_, _ = client.Stats(context.TODO(), containerID)
 }

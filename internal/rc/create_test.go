@@ -13,7 +13,8 @@ import (
 
 func TestCreate_ContainerCreateFailed_ReturnErr(t *testing.T) {
 	mockContainerPort := newMockContainerPort(t)
-	mockContainerPort.EXPECT().ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+	mockContainerPort.EXPECT().
+		ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(container.ContainerCreateCreatedBody{}, errors.New("some kind of error"))
 
 	cli := rc.NewClient(mockContainerPort, nil)
@@ -24,9 +25,11 @@ func TestCreate_ContainerCreateFailed_ReturnErr(t *testing.T) {
 
 func TestCreate_ContainerStartFailed_ReturnErr(t *testing.T) {
 	mockContainerPort := newMockContainerPort(t)
-	mockContainerPort.EXPECT().ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+	mockContainerPort.EXPECT().
+		ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(container.ContainerCreateCreatedBody{ID: "some-id"}, nil)
-	mockContainerPort.EXPECT().ContainerStart(gomock.Any(), "some-id", gomock.Any()).
+	mockContainerPort.EXPECT().
+		ContainerStart(gomock.Any(), "some-id", gomock.Any()).
 		Return(errors.New("err"))
 
 	cli := rc.NewClient(mockContainerPort, nil)
@@ -37,9 +40,11 @@ func TestCreate_ContainerStartFailed_ReturnErr(t *testing.T) {
 
 func TestCreate_ContainerCreatedAndStarted_ReturnContainerID(t *testing.T) {
 	mockContainerPort := newMockContainerPort(t)
-	mockContainerPort.EXPECT().ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+	mockContainerPort.EXPECT().
+		ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(container.ContainerCreateCreatedBody{ID: "some-id"}, nil)
-	mockContainerPort.EXPECT().ContainerStart(gomock.Any(), "some-id", gomock.Any()).
+	mockContainerPort.EXPECT().
+		ContainerStart(gomock.Any(), "some-id", gomock.Any()).
 		Return(nil)
 
 	cli := rc.NewClient(mockContainerPort, nil)

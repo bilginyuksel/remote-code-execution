@@ -21,6 +21,8 @@ import (
 const (
 	_shutdownTimeoutDuration  = time.Second * 5
 	_balancerIntervalDuration = time.Second * 10
+
+	defaultPort = 8888
 )
 
 func CommandServe() *cli.Command {
@@ -32,7 +34,7 @@ func CommandServe() *cli.Command {
 				Name:    "port",
 				Aliases: []string{"p"},
 				Usage:   "Give the port that you want to run the application",
-				Value:   8888,
+				Value:   defaultPort,
 			},
 		},
 		Action: startServer,
