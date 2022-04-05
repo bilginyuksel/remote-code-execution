@@ -9,7 +9,7 @@ Remote code execution application creates a container then executes the code giv
 ## Test the application
 
 ```bash
-curl --location --request POST 'http://3.67.10.139:8888/v2/codexec' \
+curl --location --request POST 'http://localhost:8888/v2/codexec' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "lang": "python3",
@@ -89,40 +89,18 @@ Test the compiler/interpreters.
 5. __C++ -->__ `g++ --version`
 6. __C -->__ `gcc --version`
 
+## Run the application (DIND)
+
+Runs the application for unix systems
+
+```bash
+chmod +x ./scripts/up.sh && ./scripts/up.sh
+```
+
 ## Execute multiple commands with docker exec
 
 The command below will work for ubuntu container. You need to change the `bash` command according to container you use. For example for alpine container it should be `/bin/sh`.
 
 ```bash
 docker exec -w <workdir> -it <container-id> bash -c "<command> && <command>"
-```
-
-## Quick Demo
-
-Clone the application, open the terminal and go to the application directory then run the commands below.
-
-```bash
-mkdir target
-echo 'import package
-import "fmt"
-func main() {
-    fmt.Println("Hello, world!")
-}' > demo.go
-go build -o rce .
-APP_ENV=local ./rce exec -p demo.go -l golang
-```
-
-To kill the container and remove after that.
-```bash
-function conkill {
-    docker kill $1
-    docker container rm $1
-}
-conkill <container-id>
-```
-
-## Deploy
-
-```bash
-docker run -dit -p 8888:8888 -v /var/run/docker.sock:/var/run/docker.sock --mount type=bind,source=$(pwd)/target,target=/target codigician/rce:v0.0.3-amd64
 ```
