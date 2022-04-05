@@ -9,5 +9,5 @@ image: "codigician/all-in-one-ubuntu:v1-amd64"
 # container host config
 mounts:
   - type: "bind"
-    source: "/home/ec2-user/target"
+    source: "/target"
     target: "/target"
