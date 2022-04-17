@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "github.com/codigician/remote-code-execution/internal/grpc";
+
+package grpc;
+
+service codeExecutorService {
+    rpc Exec(CodeExecutionRequest) returns (CodeExecutionResponse) {}
+}
+
+message CodeExecutionRequest {
+    string lang = 1;
+    string content = 2;
+    string args = 3;
+}
+
+message CodeExecutionResponse {
+    string output = 1;
+    int64 execution_time_ms = 2;
+}

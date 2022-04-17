@@ -11,6 +11,7 @@ func Build() *cli.App {
 		Commands: []*cli.Command{
 			CommandExec(),
 			CommandServe(),
+			CommandGrpcServer(),
 		},
 	}
 }
